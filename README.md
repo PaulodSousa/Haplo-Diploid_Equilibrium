@@ -5,14 +5,14 @@ This repository contains:
 
 
 In a haplo-diploid system where one sex is haploid and another diploid (e.g. hymentoptera insects) and assuming
-equal sex ratio
-random mating
-infinite population size (no drift)
-equal probability of reproduction (no selection),
-alleles don`t change from individual to gene pool (no mutation)
-no addition of gametes from other gene pools (no gene flow)
-equal allele frequencies across sexes
-no overlapping generations
+1. equal sex ratio
+2. random mating
+3. infinite population size (no drift)
+4. equal probability of reproduction (no selection),
+5. alleles don`t change from individual to gene pool (no mutation)
+6. no addition of gametes from other gene pools (no gene flow)
+7. equal allele frequencies across sexes
+8. no overlapping generations
 
 Let p be the frequency of the allele "A" and q be the frequency of the allele "a" of a bi-allelic marker so that p + q = 1, then:
 f(AA) = p² x 1/2 = p²/2
