@@ -6,8 +6,8 @@ This repository contains:
 ## List of scripts
 HaploDip_base.R > base script where the bases of the model are written and with some simulations \
 HaploDip_Het.R > script with two functions: \
-1st. compute_allele.freqs_SW() calculates several summary statistics by population from vcf and a pop file across costumized sliding windows. Outputs a dataframe with summary statistics by window and by population \
-2nd. summary.He summarises the input of compute_allele.freqs_SW(). Outputs a dataframe with summary statistics by population 
+1. compute_allele.freqs_SW() calculates several summary statistics by population from vcf and a pop file across costumized sliding windows. Outputs a dataframe with summary statistics by window and by population \
+2. summary.He() summarises the input of compute_allele.freqs_SW(). Outputs a dataframe with summary statistics by population 
 
 ## Theoretical explanation of the model
 In a haplo-diploid system where one sex is haploid and another diploid (e.g. hymentoptera insects) and assuming
