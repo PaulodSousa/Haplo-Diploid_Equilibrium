@@ -74,7 +74,7 @@ f(a)t+1 = f(aa) + f(Aa)/2 = q²/2 + pq/2 = q/2 x (p + q) = q/2 x (1) = q/2
 Since, the genotype frequencies in t+1 are the same as in t0, no evolution as occured.
 
 
-Next step: biased sex ratio
+# Next step: biased sex ratio
 
 
 
