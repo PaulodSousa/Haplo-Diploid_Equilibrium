@@ -1,4 +1,4 @@
-# Haplo-Diploid_Equilibrium
+# Haplo-Diploid Equilibrium
 This repository contains:
 1. Scripts to estimate pop. gen. summary statistics from haplo-diploid systems
 2. A theoretical explanation of the model (see below)
