@@ -14,7 +14,7 @@ In a haplo-diploid system where one sex is haploid and another diploid (e.g. hym
 7. equal allele frequencies across sexes
 8. no overlapping generations
 
-Let p be the frequency of the allele "A" and q be the frequency of the allele "a" of a bi-allelic marker so that p + q = 1, then:
+Let p be the frequency of the allele "A" and q be the frequency of the allele "a" of a bi-allelic marker so that p + q = 1, then: \t
 f(AA) = p² x 1/2 = p²/2
 f(aa) = q² x 1/2 = q²/2
 f(Aa) = 2pq x 1/2 = pq
