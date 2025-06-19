@@ -36,7 +36,7 @@ q = ( 2x N(aa) + N(Aa) + N(a) ) / (2x N.dip + N.haplo
 In order to calculate genotype frequencies on next generation: \
 if offspring is diploid, then:
 
-Mating pair  Offspring genotype distribution  Mating pair frequency \
+Mating pair\tOffspring genotype distribution  Mating pair frequency \
 AA x A       AA (100%)                        2x ( f(AA) x f(A) ) \
 AA x a       Aa (100%)                        2x ( f(AA) x f(a) ) \
 Aa x A       Aa (50%) + AA (50%)              2x ( f(Aa) x f(A) ) \
