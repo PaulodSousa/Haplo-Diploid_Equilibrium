@@ -1,0 +1,5 @@
+Ca_001	DF
+Ca_002	DF
+Ca_003	DF
+Ca_004	GO
+Ca_005	GO
