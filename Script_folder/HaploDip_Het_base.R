@@ -52,19 +52,19 @@ dt
 
 dt_list <- list()
 
-for (i in 1:1000) {
+for (i in 1:10000) {
   # Randomly choose size of vector
-  N <- sample(10:300, 1)
+  N <- sample(500:2000, 1)
   
   # Generate normalized probabilities
-  p <- round(runif(5, min = 0, max = 1), 2)
+  p <- round(runif(5, min = 0, max = 1), 3)
   p <- p / sum(p)
   
   # Sample genotypes of size N
   geno <- sample(c("0/0", "0/1", "1/1", "0", "1"), N, replace = TRUE, prob = p)
   
   # Pad with NAs to length 30
-  geno_padded <- c(geno, rep(NA, 300 - N))
+  geno_padded <- c(geno, rep(NA, 2000 - N))
   
   # Save to list
   dt_list[[i]] <- geno_padded
@@ -72,7 +72,6 @@ for (i in 1:1000) {
 
 # Combine all into a data frame
 dt <- as.data.frame(do.call(rbind, dt_list))
-head(dt)
 
 remove(dt_list, geno, geno_padded, i, N, p)
 
@@ -84,52 +83,124 @@ results_list <- lapply(1:nrow(dt), function(i) {
 results_df <- as.data.frame(do.call(rbind, results_list))
 
 library(ggplot2)
-Freq.Alt.plot <- 
-  ggplot(results_df, aes(x= Freq.Alt))+
+ggplot(results_df, aes(x= Freq.Alt))+
     geom_histogram(color="darkblue", fill="lightblue")  +
     geom_vline(aes(xintercept= mean(Freq.Ref)),
              color="black", linetype="dashed", size=1) +
-    theme_classic()
+  annotate(geom="text", x=0.15, y=760, label="10k simulations", size=3) +
+  annotate(geom="text", x=0.15, y=710, label="N [500 - 2000]", size=3) +
+  annotate(geom="text", x=0.15, y=660, label="Sex ratio [0 - 1]", size=3) +
+  ggtitle("") + xlab("Frequency reference allele") + ylab("Count") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+        )
 
-Exp.Het.plot <-
-  ggplot(results_df, aes(x= Exp.Het))+
+ggplot(results_df, aes(x= Exp.Het))+
     geom_histogram(color="darkblue", fill="lightblue") +
     geom_vline(aes(xintercept= mean(Exp.Het)),
              color="black", linetype="dashed", size=1) +
-    theme_classic()
+  annotate(geom="text", x=0.05, y=4000, label="10k simulations", size=3) +
+  annotate(geom="text", x=0.05, y=3600, label="N [500 - 2000]", size=3) +
+  annotate(geom="text", x=0.05, y=3200, label="Sex ratio [0 - 1]", size=3) +
+  ggtitle("") + xlab("Expected heterozygosity") + ylab("Count") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
 
-Exp.Hom.plot <-
-  ggplot(results_df, aes(x= Exp.Hom))+
+ggplot(results_df, aes(x= Exp.Hom))+
     geom_histogram(color="darkblue", fill="lightblue") +
     geom_vline(aes(xintercept= mean(Exp.Hom)),
              color="black", linetype="dashed", size=1) +
-    theme_classic()
+  annotate(geom="text", x=0.35, y=3000, label="10k simulations", size=3) +
+  annotate(geom="text", x=0.35, y=2600, label="N [500 - 2000]", size=3) +
+  annotate(geom="text", x=0.35, y=2200, label="Sex ratio [0 - 1]", size=3) +
+  ggtitle("") + xlab("Expected homozygosity") + ylab("Count") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
 
-Exp.M.Ref.plot <- 
-  ggplot(results_df, aes(x= Exp.M.Ref))+
+ggplot(results_df, aes(x= Exp.M.Ref))+
     geom_histogram(color="darkblue", fill="lightblue") +
     geom_vline(aes(xintercept= mean(Exp.M.Ref)),
              color="black", linetype="dashed", size=1) +
-    theme_classic()
+  annotate(geom="text", x=0.05, y=900, label="10k simulations", size=3) +
+  annotate(geom="text", x=0.05, y=850, label="N [500 - 2000]", size=3) +
+  annotate(geom="text", x=0.05, y=810, label="Sex ratio [0 - 1]", size=3) +
+  ggtitle("") + xlab("Expected males reference allele") + ylab("Count") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
 
-Exp.Het_N.samples.plot <-
-  ggplot(results_df, aes(x= N_samples, y= Exp.Het, color= Prop_Males)) +
+ggplot(results_df, aes(x= N_samples, y= Exp.Het, color= Prop_Males)) +
     geom_point() + scale_color_gradient(low = "#56B1F7", high = "#F8766D") +
-    theme_classic()
+    annotate(geom="text", x=600, y=0.09, label="10k simulations", size=3) +
+    annotate(geom="text", x=600, y=0.08, label="N [500 - 2000]", size=3) +
+    annotate(geom="text", x=600, y=0.07, label="Sex ratio [0 - 1]", size=3) +
+    ggtitle("") + xlab("Number of samples") + ylab("Expected heterozygosity") +
+    theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
+
+
 cor.test(results_df$N_samples, results_df$Exp.Het)
 cor.test(results_df$N_samples, results_df$Prop_Males)
 cor.test(results_df$Prop_Males, results_df$Exp.Het)
 
-Exp.Hom_N.samples.plot <- 
-  ggplot(results_df, aes(x= N_samples, y= Exp.Hom, color= Prop_Males)) +
-    geom_point() + scale_color_gradient(low = "#56B1F7", high = "#F8766D") +
-    theme_classic()
+ggplot(results_df, aes(x= N_samples, y= Exp.Hom, color= Prop_Males)) +
+  geom_point() + scale_color_gradient(low = "#56B1F7", high = "#F8766D") +
+  annotate(geom="text", x=600, y=0.47, label="10k simulations", size=3) +
+  annotate(geom="text", x=600, y=0.45, label="N [500 - 2000]", size=3) +
+  annotate(geom="text", x=600, y=0.43, label="Sex ratio [0 - 1]", size=3) +
+  ggtitle("") + xlab("Number of samples") + ylab("Expected homozygosity") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
 cor.test(results_df$N_samples, results_df$Exp.Hom)
 cor.test(results_df$Prop_Males, results_df$Exp.Hom)
 
-Exp.M.Ref_N.samples.plot <-
-  ggplot(results_df, aes(x= N_samples, y= Exp.M.Ref, color= Prop_Males)) +
-    geom_point() + scale_color_gradient(low = "#56B1F7", high = "#F8766D") +
-    theme_classic()
+ggplot(results_df, aes(x= N_samples, y= Exp.M.Ref, color= Prop_Males)) +
+  geom_point() + scale_color_gradient(low = "#56B1F7", high = "#F8766D") +
+  annotate(geom="text", x=600, y=0.6, label="10k simulations", size=3) +
+  annotate(geom="text", x=600, y=0.56, label="N [500 - 2000]", size=3) +
+  annotate(geom="text", x=600, y=0.52, label="Sex ratio [0 - 1]", size=3) +
+  ggtitle("") + xlab("Number of samples") + ylab("Expected males reference allele") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
 cor.test(results_df$N_samples, results_df$Exp.M.Ref)
 cor.test(results_df$Prop_Males, results_df$Exp.M.Ref)
