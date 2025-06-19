@@ -21,12 +21,12 @@ f(Aa) = 2pq x 1/2 = pq \
 f(A) = p x 1/2 = p/2 \
 f(a) = q x 1/2 = q/2 
 
-f(AA) + f(Aa) + f(aa) + f(A) + f(a) = p²/2 + pq + q²/2 + p/2 + q/2 = 
-= 1/2 x (p² + 2pq + q² + p + q) = 
-= 1/2 x (p² + 2pq + q²) + 1/2 x (p + q) = 
-= 1/2 x (p + q)² + 1/2 x (1) = 
-= 1/2 x (1)² + 1/2 = 
-= 1/2 + 1/2 = 
+f(AA) + f(Aa) + f(aa) + f(A) + f(a) = p²/2 + pq + q²/2 + p/2 + q/2 = \
+= 1/2 x (p² + 2pq + q² + p + q) = \
+= 1/2 x (p² + 2pq + q²) + 1/2 x (p + q) = \
+= 1/2 x (p + q)² + 1/2 x (1) = \
+= 1/2 x (1)² + 1/2 = \
+= 1/2 + 1/2 = \
 = 1
 
 Let N(X) be the number of individuals with genotype X, and N.dip and N.haplo being the number of diploid and haploid individuals respectively, then: \
