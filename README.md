@@ -3,7 +3,10 @@ This repository contains:
 1. Scripts to estimate pop. gen. summary statistics from haplo-diploid systems
 2. A theoretical explanation of the model (see below)
 
+# List of scripts
 
+
+## Theoretical explanation of the model
 In a haplo-diploid system where one sex is haploid and another diploid (e.g. hymentoptera insects) and assuming
 1. equal sex ratio
 2. random mating
