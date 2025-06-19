@@ -34,8 +34,7 @@ p = ( 2x N(AA) + N(Aa) + N(A) ) / (2x N.dip + N.haplo) \
 q = ( 2x N(aa) + N(Aa) + N(a) ) / (2x N.dip + N.haplo
 
 In order to calculate genotype frequencies on next generation: \
-if offspring is diploid, then:
-
+if offspring is diploid, then: \
 | Mating pair | Offspring genotype distribution | Mating pair frequency |
 |-------------|---------------------------------|-----------------------|
 | AA x A      |       AA (100%)                 |  2x ( f(AA) x f(A) )  |
@@ -46,12 +45,13 @@ if offspring is diploid, then:
 | aa x a      |       aa (100%)                 |  2x ( f(aa) x f(a) ) |
 
 if offspring is haploid, then: \
-Parent genotype  Offspring genotype distribution  Parent frequency \
-AA               AA (100%)                        f(AA) \
-Aa               A (50%) + a (50%)                f(Aa) \
-aa               aa (100%)                        f(aa)
+| Parent genotype | Offspring genotype distribution | Parent frequency |
+|-----------------|---------------------------------|------------------|
+| AA              |       AA (100%)                 |       f(AA)      |
+| Aa              |       A (50%) + a (50%)         |       f(Aa)      |
+| aa              |       aa (100%)                 |       f(aa)      |
 
-The frequency of each genotype of next generation are:
+The frequency of each genotype of next generation are: \
 f(AA)t+1 = 2x (f(AA) x f(A)) + 2x (f(Aa) x f(A))/2 = 2x (p²/2 x p/2) + (pq x p/2) = 2x p³/4 + p²q/2 = p³/2 + p²q/2 = p²/2 x (p + q) = p²/2 x 1 = p²/2
 
 f(aa)t+1 = 2x (f(aa) x f(a)) + 2x (f(Aa) x f(a))/2 = 2x (q²/2 x q/2) + (pq x q/2) = 2x q³/4 + q²p/2 = q³/2 + q²p/2 = q²/2 x (q + p) = q²/2 x 1 = q²/2
@@ -63,12 +63,13 @@ f(A)t+1 = f(AA) + f(Aa)/2 = p²/2 + pq/2 = p/2 x (p + q) = p/2 x (1) = p/2
 
 f(a)t+1 = f(aa) + f(Aa)/2 = q²/2 + pq/2 = q/2 x (p + q) = q/2 x (1) = q/2
 
-Genotype  Frequency at t0    Frequency at t+1
-AA        p²/2               p²/2           
-Aa        pq                 pq
-aa        q²/2               q²/2
-A         p/2                p/2
-a         q/2                q/2
+| Genotype | Frequency at t0 | Frequency at t+1 |
+|----------|-----------------|------------------|
+| AA       |      p²/2       |        p²/2      |           
+| Aa       |      pq         |        pq        |
+| aa       |      q²/2       |        q²/2      |
+| A        |      p/2        |        p/2       |
+| a        |      q/2        |        q/2       |
 
 Since, the genotype frequencies in t+1 are the same as in t0, no evolution as occured.
 
