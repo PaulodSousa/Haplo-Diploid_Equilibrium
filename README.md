@@ -1,7 +1,8 @@
 # Haplo-Diploid Equilibrium
 This repository contains:
-1. Scripts to estimate pop. gen. summary statistics from haplo-diploid systems
-2. A theoretical explanation of the model (see below)
+1. Scripts to estimate pop. gen. summary statistics from haplo-diploid systems (Script_folder)
+2. Fake data to test scripts (Fake_data)
+3. A theoretical explanation of the model (see below)
 
 ## List of scripts
 HaploDip_base.R > base script where the bases of the model are written and with some simulations \
