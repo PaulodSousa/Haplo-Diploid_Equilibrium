@@ -15,11 +15,11 @@ In a haplo-diploid system where one sex is haploid and another diploid (e.g. hym
 8. no overlapping generations
 
 Let p be the frequency of the allele "A" and q be the frequency of the allele "a" of a bi-allelic marker so that p + q = 1, then: \
-f(AA) = p² x 1/2 = p²/2
-f(aa) = q² x 1/2 = q²/2
-f(Aa) = 2pq x 1/2 = pq
-f(A) = p x 1/2 = p/2
-f(a) = q x 1/2 = q/2
+f(AA) = p² x 1/2 = p²/2 \
+f(aa) = q² x 1/2 = q²/2 \
+f(Aa) = 2pq x 1/2 = pq \
+f(A) = p x 1/2 = p/2 \
+f(a) = q x 1/2 = q/2 \
 
 f(AA) + f(Aa) + f(aa) + f(A) + f(a) = p²/2 + pq + q²/2 + p/2 + q/2 = 
 = 1/2 x (p² + 2pq + q² + p + q) = 
