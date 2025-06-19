@@ -4,15 +4,15 @@ This repository contains:
 2. A theoretical explanation of the model (see below)
 
 
-In a haplo-diploid system where one sex is haploid and another diploid (e.g. hymentoptera insects) and assuming: 
-  > equal sex ratio
-  > random mating
-  > infinite population size (no drift)
-  > equal probability of reproduction (no selection),
-  > alleles don`t change from individual to gene pool (no mutation)
-  > no addition of gametes from other gene pools (no gene flow)
-  > equal allele frequencies across sexes
-  > no overlapping generations
+In a haplo-diploid system where one sex is haploid and another diploid (e.g. hymentoptera insects) and assuming
+equal sex ratio
+random mating
+infinite population size (no drift)
+equal probability of reproduction (no selection),
+alleles don`t change from individual to gene pool (no mutation)
+no addition of gametes from other gene pools (no gene flow)
+equal allele frequencies across sexes
+no overlapping generations
 
 Let p be the frequency of the allele "A" and q be the frequency of the allele "a" of a bi-allelic marker so that p + q = 1, then:
 f(AA) = p² x 1/2 = p²/2
