@@ -48,6 +48,39 @@ allele.freq <- function(geno.data) {
      )
 }
 
+HWE.freq <- function(geno.data) {
+  
+  # 1st step: count each genotype
+  AA.f <- sum(geno.data %in% "0/0", na.rm = TRUE)
+  aa.f <- sum(geno.data %in% "1/1", na.rm = TRUE)
+  Aa.f <- sum(geno.data %in% c("1/0", "0/1"), na.rm = TRUE)
+  
+  # 2nd step: Calculate number samples 
+  Total_Samples <- AA.f + aa.f + Aa.f
+  
+  # 3rd step: Calculate allele frequencies
+  F.A <- (2*AA.f + Aa.f) / (Total_Samples * 2)
+  F.a <- (2*aa.f + Aa.f) / (Total_Samples * 2)
+  
+  # 4th step: Calculate expected genotype frequencies (assuming an equal sex ratio)
+  Exp.AA <- (F.A * F.A)
+  Exp.aa <- (F.a * F.a)
+  Exp.Aa <- 2 * (F.A * F.a)
+  
+  results <- data.frame(
+    N_samples = Total_Samples,
+    Freq.Ref = F.A,
+    Freq.Alt = F.a,
+    Obs.AA = AA.f  / Total_Samples,
+    Obs.aa = aa.f / Total_Samples,
+    Obs.Het = Aa.f / Total_Samples,
+    Obs.Hom = Aa.f + aa.f,
+    Exp.AA = Exp.AA,
+    Exp.aa = Exp.aa,
+    Exp.Het = Exp.Aa,
+    Exp.Hom = Exp.AA + Exp.aa
+  )
+}
 
 dt <- as.data.frame(allele.freq(geno.data = geno.data))
 dt
@@ -252,36 +285,46 @@ cor.test(results_df$Prop_Males, results_df$Exp.M.Ref)
 set.seed(1234)
 
 geno.original <- sample(c("0/0", "0/1", "1/1", "0", "1"), 100000, replace = TRUE, 
-                        prob = c(0.28125, 0.1875, 0.0312, 0.375, 0.125 ))
+                        prob = c(1/8, 1/4, 1/8, 1/4, 1/4 ))
 
 complete <- allele.freq(geno.original)
-complete$Exp.Hom <- 1 - complete$Exp.Het
+complete$Exp.Hom <- complete$Exp.AA + complete$Exp.aa
+
+# Define probabilities for each character
+char_probs <- c("0/0" = 1/4, "0/1" = 1/2, "1/1" = 1/4, "0" = 0, "1" = 0)
+
+# Map these probabilities to the large vector
+element_probs <- char_probs[geno.original]
 
 geno.subs <- list()
 for (i in 1:100000) {
   # size of sampling
   N <- sample(2:20, 1)
   
+  #Sample 10 characters from the large vector using those mapped probabilities
+  sub.females <- sample(geno.original, size = N, replace = TRUE, prob = element_probs)
+  
   # probability of sampling genotype X is its frequency on the population
-  sub <- sample(geno.original, N, replace = TRUE)
+  #sub <- sample(geno.original, N, replace = TRUE)
  
   # Pad with NAs to length 20
-  sub_padded <- c(sub, rep(NA, 20 - N))
+  sub_padded <- c(sub.females, rep(NA, 20 - N))
   geno.subs[[i]] <- sub_padded
 }
 sub.dt <- as.data.frame(do.call(rbind, geno.subs))
 
-remove(sub_padded, sub, i, N, geno.subs)
+remove(sub_padded, sub, i, N, geno.subs, sub.females, char_probs, element_probs)
 
 results_list <- list()
 
 results_list <- lapply(1:nrow(sub.dt), function(i) {
-  allele.freq(sub.dt[i, ])
+  #allele.freq(sub.dt[i, ])
+  HWE.freq(sub.dt[i,]) 
 })
 results_sub_df <- as.data.frame(do.call(rbind, results_list))
 remove(results_list, sub.dt)
 
-results_sub_df$Exp.Hom <- 1 - results_sub_df$Exp.Het
+results_sub_df$Exp.Hom <- results_sub_df$Exp.AA + results_sub_df$Exp.aa
 
 library(ggplot2)
 ggplot(results_sub_df, aes(x = Freq.Ref)) +
@@ -370,11 +413,11 @@ ggplot(results_sub_df, aes(x = N_samples)) +
 
 results_sub_df_diffs <- data.frame(
   N_Samples = results_sub_df$N_samples,
-  Prop_Males = results_sub_df$Prop_Males,
+  #Prop_Males = results_sub_df$Prop_Males,
   Diff_Ref.Allele = complete$Freq.Ref - results_sub_df$Freq.Ref,
   Diff_Exp.Het = complete$Exp.Het - results_sub_df$Exp.Het,
-  Diff_Exp.Hom = complete$Exp.Hom - results_sub_df$Exp.Hom,
-  Diff_M.Ref.Allele = complete$Exp.M.Ref - results_sub_df$Exp.M.Ref
+  Diff_Exp.Hom = complete$Exp.Hom - results_sub_df$Exp.Hom#,
+  #Diff_M.Ref.Allele = complete$Exp.M.Ref - results_sub_df$Exp.M.Ref
 )
 
 ggplot(results_sub_df_diffs, aes(x = N_Samples, y= Diff_Ref.Allele, color= Prop_Males)) + 
@@ -433,3 +476,6 @@ ggplot(results_sub_df_diffs, aes(x = N_Samples, y= Diff_M.Ref.Allele, color= Pro
         panel.grid.major = element_line(color = "grey80"),  # major grid lines
         panel.grid.minor = element_line(color = "grey90")   # minor grid lines
   )
+
+# Mean square error
+mean((results_sub_df$Exp.M.Ref - complete$Exp.M.Ref)^2)
