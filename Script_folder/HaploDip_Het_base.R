@@ -56,6 +56,8 @@ dt
 
 dt_list <- list()
 
+set.seed(1234)
+
 for (i in 1:10000) {
   # Randomly choose size of vector
   N <- sample(500:2000, 1)
@@ -88,6 +90,7 @@ results_list <- lapply(1:nrow(dt), function(i) {
 })
 results_df <- as.data.frame(do.call(rbind, results_list))
 
+library(dplyr)
 results_df %>% summarise(Mean = round(mean(Exp.M.Alt), 3), SD= round(sd(Exp.M.Alt), 3),
                          Min = round(min(Exp.M.Alt), 3), Max = round(max(Exp.M.Alt), 3))
 
@@ -243,3 +246,190 @@ ggplot(results_df, aes(x= N_samples, y= Exp.M.Ref, color= Prop_Males)) +
   )
 cor.test(results_df$N_samples, results_df$Exp.M.Ref)
 cor.test(results_df$Prop_Males, results_df$Exp.M.Ref)
+
+################################################################################
+# Tests for sampling sizes and biases
+set.seed(1234)
+
+geno.original <- sample(c("0/0", "0/1", "1/1", "0", "1"), 100000, replace = TRUE, 
+                        prob = c(0.28125, 0.1875, 0.0312, 0.375, 0.125 ))
+
+complete <- allele.freq(geno.original)
+complete$Exp.Hom <- 1 - complete$Exp.Het
+
+geno.subs <- list()
+for (i in 1:100000) {
+  # size of sampling
+  N <- sample(2:20, 1)
+  
+  # probability of sampling genotype X is its frequency on the population
+  sub <- sample(geno.original, N, replace = TRUE)
+ 
+  # Pad with NAs to length 20
+  sub_padded <- c(sub, rep(NA, 20 - N))
+  geno.subs[[i]] <- sub_padded
+}
+sub.dt <- as.data.frame(do.call(rbind, geno.subs))
+
+remove(sub_padded, sub, i, N, geno.subs)
+
+results_list <- list()
+
+results_list <- lapply(1:nrow(sub.dt), function(i) {
+  allele.freq(sub.dt[i, ])
+})
+results_sub_df <- as.data.frame(do.call(rbind, results_list))
+remove(results_list, sub.dt)
+
+results_sub_df$Exp.Hom <- 1 - results_sub_df$Exp.Het
+
+library(ggplot2)
+ggplot(results_sub_df, aes(x = Freq.Ref)) +
+  geom_histogram(color="darkblue", fill="lightblue") +
+  geom_vline(data = complete, aes(xintercept = Freq.Ref), color = "red", linetype = "solid") +
+  ggtitle("Comparison between population and sample of 10") + 
+  xlab("Frequency reference allele") + ylab("Count") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
+
+ggplot(results_sub_df, aes(x = Exp.Het)) +
+  geom_histogram(color="darkblue", fill="lightblue") +
+  geom_vline(data = complete, aes(xintercept = Exp.Het), color = "red", linetype = "solid") +
+  ggtitle("Comparison between population and sample of 10") + 
+  xlab("Expected Heterozygosity") + ylab("Count") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
+
+ggplot(results_sub_df, aes(x = Exp.Hom)) +
+  geom_histogram(color="darkblue", fill="lightblue") +
+  geom_vline(data = complete, aes(xintercept = Exp.Hom), color = "red", linetype = "solid") +
+  ggtitle("Comparison between population and sample of 10") + 
+  xlab("Expected Homozygosity") + ylab("Count") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
+
+
+ggplot(results_sub_df, aes(x = Exp.M.Ref)) +
+  geom_histogram(color="darkblue", fill="lightblue") +
+  geom_vline(data = complete, aes(xintercept = Exp.M.Ref), color = "red", linetype = "solid") +
+  ggtitle("Comparison between population and sample of 10") + 
+  xlab("Expected Male reference allele") + ylab("Count") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
+
+ggplot(results_sub_df, aes(x = Prop_Males)) +
+  geom_histogram(color="darkblue", fill="lightblue") +
+  geom_vline(data = complete, aes(xintercept = Prop_Males), color = "red", linetype = "solid") +
+  ggtitle("Comparison between population and sample of 10") + 
+  xlab("Proportion of Males") + ylab("Count") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
+
+ggplot(results_sub_df, aes(x = N_samples)) +
+  geom_histogram(color="darkblue", fill="lightblue") +
+  ggtitle("Comparison between population and sample of 10") + 
+  xlab("Number of samples") + ylab("Count") +
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white", color="grey7")
+  )
+
+results_sub_df_diffs <- data.frame(
+  N_Samples = results_sub_df$N_samples,
+  Prop_Males = results_sub_df$Prop_Males,
+  Diff_Ref.Allele = complete$Freq.Ref - results_sub_df$Freq.Ref,
+  Diff_Exp.Het = complete$Exp.Het - results_sub_df$Exp.Het,
+  Diff_Exp.Hom = complete$Exp.Hom - results_sub_df$Exp.Hom,
+  Diff_M.Ref.Allele = complete$Exp.M.Ref - results_sub_df$Exp.M.Ref
+)
+
+ggplot(results_sub_df_diffs, aes(x = N_Samples, y= Diff_Ref.Allele, color= Prop_Males)) + 
+  geom_point() + scale_color_gradient(low = "#56B1F7", high = "#F8766D") +
+  ggtitle("Comparison between population and sample of 10") + 
+  xlab("Number of samples") + ylab("Delta of reference allele frequency") +
+  theme_bw() +          # white background with grid lines
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        panel.grid.major = element_line(color = "grey80"),  # major grid lines
+        panel.grid.minor = element_line(color = "grey90")   # minor grid lines
+  )
+
+
+ggplot(results_sub_df_diffs, aes(x = N_Samples, y= Diff_Exp.Het, color= Prop_Males)) + 
+  geom_point() + scale_color_gradient(low = "#56B1F7", high = "#F8766D") +
+  ggtitle("Comparison between population and sample of 10") + 
+  xlab("Number of samples") + ylab("Delta of expected heterozygosity") +
+  theme_bw() +          # white background with grid lines
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        panel.grid.major = element_line(color = "grey80"),  # major grid lines
+        panel.grid.minor = element_line(color = "grey90")   # minor grid lines
+  )
+
+ggplot(results_sub_df_diffs, aes(x = N_Samples, y= Diff_Exp.Hom, color= Prop_Males)) + 
+  geom_point() + scale_color_gradient(low = "#56B1F7", high = "#F8766D") +
+  ggtitle("Comparison between population and sample of 10") + 
+  xlab("Number of samples") + ylab("Delta of expected homozygosity") +
+  theme_bw() +          # white background with grid lines
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        panel.grid.major = element_line(color = "grey80"),  # major grid lines
+        panel.grid.minor = element_line(color = "grey90")   # minor grid lines
+  )
+
+ggplot(results_sub_df_diffs, aes(x = N_Samples, y= Diff_M.Ref.Allele, color= Prop_Males)) + 
+  geom_point() + scale_color_gradient(low = "#56B1F7", high = "#F8766D") +
+  ggtitle("Comparison between population and sample of 10") + 
+  xlab("Number of samples") + ylab("Delta of Male reference allele frequency") +
+  theme_bw() +          # white background with grid lines
+  theme(plot.title = element_text(),
+        axis.title.y = element_text(size= 14),
+        axis.title.x = element_text(size= 14),
+        axis.text.x = element_text(color="black", size=10),
+        axis.text.y = element_text(color="black", size=10),
+        panel.grid.major = element_line(color = "grey80"),  # major grid lines
+        panel.grid.minor = element_line(color = "grey90")   # minor grid lines
+  )

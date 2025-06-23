@@ -1,8 +1,8 @@
 library(dplyr)
 library(vcfR)
-setwd("/home/paulos/PhD/Haplo-Dip_Model/")
+setwd("/home/paulos/PhD/")
 # Import vcf
-vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_2pops_5indvs.vcf")
+vcf <- read.vcfR("")
 # get only the genotypes from vcf file
 gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
 head(gt_matrix)
@@ -11,7 +11,7 @@ contig_vector <- vcf@fix[, "CHROM"]
 positions <- as.numeric(vcf@fix[, "POS"])
 
 # Get pop file
-PopFile <- read.csv("Fake_data/Caenea_PopFile_Fake.txt", sep="\t", header= F)
+PopFile <- read.csv("", sep=",", header= T, row.names = 1)
 colnames(PopFile) <- c("ID", "Pop")
 head(PopFile)
 # check if names from Popfile match names from vcf
@@ -131,9 +131,9 @@ compute_allele.freqs_SW <- function(geno.data, pop.file, contigs, positions, win
 
 df <- compute_allele.freqs_SW(geno.data = gt_matrix, pop.file = PopFile, 
                               contigs = contig_vector, positions = positions,
-                              window.size = 1000, step.size = 500)
+                              window.size = 1000, step.size = 50)
 head(df)
-
+write.csv(df , "")
 
 # This function summarises the output of the compute_allele.freqs_SW()
 ## the population average of each summary statistics is done by summing the values of that statistic of
@@ -153,23 +153,25 @@ summary.He <- function(He_window_df) {
     # split data.frame by pop
     He_df_pop <- split(He_window_df, He_window_df$Pop)
     
-    N <- sum(He_df_pop[[pop]]$N_samples) # summ number of samples across all windows
-    Males <- sum(He_df_pop[[pop]]$N_males) # summ number of males across all windows
+    N <- sum(He_df_pop[[pop]]$N_samples, na.rm= T) # summ number of samples across all windows
+    Males <- sum(He_df_pop[[pop]]$N_males, na.rm= T) # summ number of males across all windows
     Windows <- nrow(He_df_pop[[pop]]) # summ number of windows
     
-    
+    N <- as.numeric(N)
+    Males <- as.numeric(Males)
+    Windows <- as.numeric(Windows)
    
     results <- data_frame(
       Pop = pop, # which population
       N_Windows = Windows, # number of windows
       Avg_N.Samples = N / Windows, # average number of samples per window
       Avg_N.Males = Males / Windows, # average number of males per window
-      Avg_Obs.Hom = sum(He_df_pop[[pop]]$Obs.Hom) / (N * Windows), # average number of observed homozygotes per window
-      Avg_Obs.Het = sum(He_df_pop[[pop]]$Obs.Het) / (N * Windows), # average number of observed heterozygous per window
-      Avg_Obs.M.Ref = sum(He_df_pop[[pop]]$Obs.M.Ref) / (N * Windows), # average number of observed reference allele males per window
-      Avg_Exp.Hom = sum(He_df_pop[[pop]]$Exp.Hom) / (N * Windows), # average number of expected homozygotes per window
-      Avg_Exp.Het = sum(He_df_pop[[pop]]$Exp.Het) / (N * Windows), # average number of expected heterozygous per window
-      Avg_Exp.M.Ref = sum(He_df_pop[[pop]]$Exp.M.Ref) / (N * Windows) # average number of expected reference allele males per window
+      Avg_Obs.Hom = sum(He_df_pop[[pop]]$Obs.Hom, na.rm= T) / (N * Windows), # average number of observed homozygotes per window
+      Avg_Obs.Het = sum(He_df_pop[[pop]]$Obs.Het, na.rm= T) / (N * Windows), # average number of observed heterozygous per window
+      Avg_Obs.M.Ref = sum(He_df_pop[[pop]]$Obs.M.Ref, na.rm= T) / (N * Windows), # average number of observed reference allele males per window
+      Avg_Exp.Hom = sum(He_df_pop[[pop]]$Exp.Hom, na.rm= T) / (N * Windows), # average number of expected homozygotes per window
+      Avg_Exp.Het = sum(He_df_pop[[pop]]$Exp.Het, na.rm= T) / (N * Windows), # average number of expected heterozygous per window
+      Avg_Exp.M.Ref = sum(He_df_pop[[pop]]$Exp.M.Ref, na.rm= T) / (N * Windows) # average number of expected reference allele males per window
     )
     summary_results[[length(summary_results) +1]] <- results
   }
@@ -177,4 +179,28 @@ summary.He <- function(He_window_df) {
   return(summary_results_df)
 }
 
-summary.He(He_window_df = df)
+df_summary <- summary.He(He_window_df = df)
+
+
+df_summary <- as.data.frame(df %>% group_by(Pop) %>% summarise(Exp.Het_Mean= mean(Exp.Het, na.rm = T),
+                                                               Exp.Het_SD= sd(Exp.Het, na.rm = T),
+                                                               Obs.Het_Mean= mean(Obs.Het, na.rm = T),
+                                                               Obs.Het_SD= sd(Obs.Het, na.rm = T),
+                                                               Exp.M.Ref_Mean = mean(Exp.M.Ref, na.rm = T),
+                                                               Exp.M.Ref_SD = sd(Exp.M.Ref, na.rm = T),
+                                                               Obs.M.Ref_Mean = mean(Obs.M.Ref, na.rm =T),
+                                                               Obs.M.Ref_SD = sd(Obs.M.Ref, na.rm =T)))
+df_summary
+
+t <- 
+  df_summary %>% summarise(Exp.Het.mean = mean(Exp.Het_Mean), Exp.Het.sd = sd(Exp.Het_Mean),
+                         Exp.Het.min = min(Exp.Het_Mean), Exp.Het.max = max(Exp.Het_Mean),
+                         Obs.Het.mean = mean(Obs.Het_Mean), Obs.Het.sd = sd(Obs.Het_Mean),
+                         Obs.Het.min = min(Obs.Het_Mean), Obs.Het.max = max(Obs.Het_Mean),
+                         Exp.M.Ref.mean = mean(Exp.M.Ref_Mean), Exp.M.Ref.sd = sd(Exp.M.Ref_Mean),
+                         Exp.M.Ref.min = min(Exp.M.Ref_Mean), Exp.M.Ref.max = max(Exp.M.Ref_Mean),
+                         Obs.M.Ref.mean = mean(Obs.M.Ref_Mean), Obs.M.Ref.sd = sd(Obs.M.Ref_Mean),
+                         Obs.M.Ref.min = min(Obs.M.Ref_Mean), Obs.M.Ref.max = max(Obs.M.Ref_Mean))
+
+t <- as.data.frame(t)
+write.csv(df_summary, "")
