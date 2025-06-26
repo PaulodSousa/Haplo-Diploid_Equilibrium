@@ -1,18 +1,21 @@
 library(data.table)
 library(dplyr)
 library(vcfR)
-setwd("/home/paulos/PhD/Haplo-Dip_Model/Fake_data/")
+setwd("/home/paulos/PhD/WGS/Ebicolor/")
 # Import vcf
-vcf <- read.vcfR("Caenea_FAKE_2contigs_2pops_5indvs.vcf")
+vcf <- read.vcfR("Pruning/Ebicolor_66_Filtered_Pruned.vcf")
 # get only the gen# get only the genotypes from vcf file
 gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
 head(gt_matrix)
+
 # get positions and contigs (for sliding windows)
 contig_vector <- vcf@fix[, "CHROM"]
 positions <- as.numeric(vcf@fix[, "POS"])
 
+remove(vcf)
+
 # Get pop file
-PopFile <- read.csv("Caenea_PopFile_Fake.txt", sep="\t", header= F, row.names = NULL)
+PopFile <- read.csv("Ebicolor_66_PopFile_SimpleNames.txt", sep=",", header= T, row.names = 1)
 head(PopFile)
 
 # only two columns, one with indv names and other with populations names
@@ -29,8 +32,11 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
   all_results <- list()
   pops <- unique(pop.file$Pop)
   
-  # for each poppulation
+  # for each population
   for (pop in pops) {
+    
+    cat("Processing population:", pop, "\n")
+    
     # Get the sample names for the populations
     pops_samples <- pop.file$ID[pop.file$Pop == pop]
     gt_matrix_pop <- geno.data[, pops_samples, drop = FALSE]
@@ -38,22 +44,29 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
     df <- data.table(
       contig = contigs, 
       pos = positions, 
-      gt_matrix
+      gt_matrix_pop
     )
     
     df$order <- seq_len(nrow(df)) # Preserve original row order
     
-    results_list <- list()
+    pop_results <- list()
     
     # for each contig do
     for(contig_name in unique(df$contig)) {
+      cat("  Contig:", contig_name, "\n")
+      
       contig_data <- df[contig == contig_name]
+      
       # Sort by genomic position
       setorder(contig_data, pos)
+      
       # Define window start and end
       contig_start <- min(contig_data$pos)
       contig_end <- max(contig_data$pos)
       window_starts <- seq(contig_start, contig_end, by = window.size)
+      
+      results_list <- vector("list", length(window_starts))
+      idx <- 1
       
       # for each window
       for (start_pos in window_starts) {
@@ -64,14 +77,15 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
         if (nrow(window_rows) == 0) next  # Skip empty windows
         
         # Extract only genotype columns (excluding contig, pos, order)
-        gt_window <- as.matrix(window_rows[, -(1:3), with = FALSE])
+        gt_window <- as.matrix(window_rows[, setdiff(names(window_rows),
+                                                     c("contig", "pos", "order")), with = FALSE])
+        
         
         # Flatten the genotype matrix for counting
         gt_flat <- as.vector(gt_window)
         
         # Fun part
         # Lets calculate summary stats
-        #gt_window <- t(as.matrix(geno.data))
         
         # 1st step: count each genotype in the window
         AA.f <- sum(gt_flat %in% "0/0", na.rm= T)
@@ -80,7 +94,7 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
         A.m <- sum(gt_flat %in% "0", na.rm= T)
         a.m <- sum(gt_flat %in% "1", na.rm= T)
         
-        # 2nd step: Calculate number of females and males and total sample number in the window
+        # 2nd step: Calculate the females, males and total number of sites in the window
         N.F <- AA.f + aa.f + Aa.f
         N.M <- A.m + a.m
         Total_Samples <- N.F + N.M
@@ -102,9 +116,7 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
           Contig = contig_name, # which contig
           Window_starts = start_pos, # starting position of window
           Window_ends = end_pos, # ending position of window 
-          N_samples = Total_Samples, # total number of samples in the window
-          N_females = N.F, # total number of females in the window
-          N_males = N.M, # total number of males in the window
+          N_sites = Total_Samples, # total number of samples in the window
           N_AA = AA.f, # total number of AA genotypes in the window
           N_Aa = Aa.f, # total number of Aa genotypes in the window
           N_aa = aa.f, # total number of aa genotypes in the window
@@ -119,18 +131,29 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
           Exp.Het = Exp.Aa, # expected frequency of the heterozygous in the window
           Exp.M.Ref = Exp.A # expected frequency of males with reference allele in the window
         )
-        results_list[[length(results_list) +1]] <- results_window
+        results_list[[idx]] <- results_window
+        idx <- idx + 1
+        
+        # Clear window-specific objects
+        rm(gt_window, gt_flat, window_rows)
+        #gc(verbose = FALSE)
       }
+      contig_results <- rbindlist(results_list[!sapply(results_list, is.null)])
+      pop_results[[length(pop_results) + 1]] <- contig_results
+      
+      # Clear contig data
+      rm(contig_data)
+      gc(verbose = FALSE)
     }
-    all_results[[pop]] <- rbindlist(results_list)
+    all_results[[pop]] <- rbindlist(pop_results)
+    # Clear population data
+    rm(gt_matrix_pop, df, results_list)
+    gc(verbose = FALSE)
   }
-  # Combine across populations
+  
   final_output <- rbindlist(all_results)
   return(final_output)
 }
-
-
-
 
 
 df <- compute_allele.freqs_W(geno.data = gt_matrix, 
@@ -141,36 +164,28 @@ df <- compute_allele.freqs_W(geno.data = gt_matrix,
 head(df)
 write.csv(df , "Diversity_Stats/complete_table.csv")
 
-df_summary <- as.data.frame(df %>% group_by(Pop) %>% summarise(Exp.Het_Mean= mean(Exp.Het, na.rm = T),
-                                                               Exp.Het_SD= sd(Exp.Het, na.rm = T),
-                                                               Obs.Het_Mean= mean(Obs.Het, na.rm = T),
-                                                               Obs.Het_SD= sd(Obs.Het, na.rm = T),
-                                                               Exp.M.Ref_Mean = mean(Exp.M.Ref, na.rm = T),
-                                                               Exp.M.Ref_SD = sd(Exp.M.Ref, na.rm = T),
-                                                               Obs.M.Ref_Mean = mean(Obs.M.Ref, na.rm =T),
-                                                               Obs.M.Ref_SD = sd(Obs.M.Ref, na.rm =T)))
-df_summary
+# weighted means and standard deviations
+library(matrixStats)
+summary_df <- df %>% group_by(Pop) %>% summarise(
+  # weighted mean and sd of expected heterozygosity
+  wMean.Exp.Het = weighted.mean(Exp.Het, N_sites, na.rm = T),
+  wSD.Exp.Het = weightedSd(Exp.Het, N_sites, na.rm =T),
+  # weighted mean and sd of observed heterozygosity
+  wMean.Obs.Het = weighted.mean(Obs.Het, N_sites, na.rm = T),
+  wSD.Obs.Het = weightedSd(Obs.Het, N_sites, na.rm =T),
+  # weighted mean and sd of expected male ref. allele genotype
+  wMean.Exp.M.Ref = weighted.mean(Exp.M.Ref, N_sites, na.rm = T),
+  wSD.Exp.M.Ref = weightedSd(Exp.M.Ref, N_sites, na.rm =T),
+  # weighted mean and sd of observed male ref. allele genotype
+  wMean.Obs.M.Ref = weighted.mean(Obs.M.Ref, N_sites, na.rm = T),
+  wSD.Obs.M.Ref = weightedSd(Obs.M.Ref, N_sites, na.rm =T),
+)
 
-write.csv(df_summary, "Diversity_Stats/summary_table.csv")
+summary_df
+
+write.csv(summary_df, "Diversity_Stats/summary_table.csv")
 
 
-df_summary %>% summarise(Exp.Het.mean = mean(Exp.Het_Mean), Exp.Het.sd = sd(Exp.Het_Mean),
-                         Exp.Het.min = min(Exp.Het_Mean), Exp.Het.max = max(Exp.Het_Mean),
-                         Obs.Het.mean = mean(Obs.Het_Mean), Obs.Het.sd = sd(Obs.Het_Mean),
-                         Obs.Het.min = min(Obs.Het_Mean), Obs.Het.max = max(Obs.Het_Mean),
-                         Exp.M.Ref.mean = mean(Exp.M.Ref_Mean), Exp.M.Ref.sd = sd(Exp.M.Ref_Mean),
-                         Exp.M.Ref.min = min(Exp.M.Ref_Mean), Exp.M.Ref.max = max(Exp.M.Ref_Mean),
-                         Obs.M.Ref.mean = mean(Obs.M.Ref_Mean), Obs.M.Ref.sd = sd(Obs.M.Ref_Mean),
-                         Obs.M.Ref.min = min(Obs.M.Ref_Mean), Obs.M.Ref.max = max(Obs.M.Ref_Mean))
-
-He.adj <- df[,c(1,6:7,19)]
-
-He.adj <- as.data.frame(He.adj %>% mutate(Indv.1 = 2*N_females + N_males,
-                                      Indv.2 = (2*N_females + N_males)-1 ))
-He.adj <- He.adj %>%  mutate(uHe = Exp.Het * (Indv.1/Indv.2) )
-
-He.adj %>% group_by(Pop) %>% summarise(Mean.uHe = mean(uHe, na.rm = T), SD.uHe = sd(uHe, na.rm = T),
-                                       Min.uHe = min(uHe, na.rm = T), Max.uHe = max(uHe, na.rm = T),)
 
 
 
