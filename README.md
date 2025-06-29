@@ -90,13 +90,13 @@ A' = p/2 and a' = q/2
 Aa' = 1 - (AA'+ aa' + A' + a') = 1 - [p²/2 + fp(1-p/2) + q²/2 + fq(1-q/2) + p/2 + q/2] = 1 - [p²/2 + q²/2 + p/2 + q/2 + fp + fq - fp²/2 - fq²/2] = 1 - [(1 - pq) + f(-p²/2 -q²/2 + p + q)] = 1 - [1- pq + f(1 - p²/2 - q²/2)] = pq - f(1 - p²/2 - q²/2)
 
 
-| Genotype | Frequency with inbreeding |-|
-|----------|-----------------|-|
-| AA       |      p²/2 + fp(1-p/2)       |-|           
-| Aa       |      pq - f(1- p²/2 -q²/2)        |-|
-| aa       |      q²/2 + fq(1-p/2)       |-|
-| A        |      p/2        |-|
-| a        |      q/2        |-|
+| Genotype | Frequency with inbreeding |
+|----------|-----------------|
+| AA       |      p²/2 + fp(1-p/2)       |        
+| Aa       |      pq - f(1- p²/2 -q²/2)        |
+| aa       |      q²/2 + fq(1-p/2)       |
+| A        |      p/2        |
+| a        |      q/2        |
 
 
 | Genotype | f = 0 | f = 1 |
