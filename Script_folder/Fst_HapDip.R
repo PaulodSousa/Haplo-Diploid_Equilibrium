@@ -5,9 +5,9 @@ library(vcfR)
 
 ## Fst
 
-setwd("/home/paulos/PhD/Haplo-Dip_Model/Fake_data/")
+setwd("/home/paulos/PhD/WGS/Caenea/")
 # Import vcf
-vcf <- read.vcfR("Caenea_FAKE_2contigs_3pops_7indvs.vcf")
+vcf <- read.vcfR("Pruning/Caenea_99_Filtered_Pruned.vcf")
 # get only the gen# get only the genotypes from vcf file
 gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
 head(gt_matrix)
@@ -19,11 +19,11 @@ positions <- as.numeric(vcf@fix[, "POS"])
 remove(vcf)
 
 # Get pop file
-PopFile <- read.csv("Caenea_PopFile_Fake.txt", sep="\t", header= F)
+PopFile <- read.csv("Caenea_PopFile99.txt", sep="\t", header= F)
 head(PopFile)
 
 # only two columns, one with indv names and other with populations names
-#PopFile <- PopFile[-c(3:ncol(PopFile))]
+PopFile <- PopFile[-c(3:ncol(PopFile))]
 colnames(PopFile) <- c("ID", "Pop")
 
 head(PopFile)
@@ -144,7 +144,7 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
 
 alle.freq.df <- allele.freq.WS(geno.data = gt_matrix, pop.file = PopFile,
                                contigs = contig_vector, positions = positions,
-                               window.size = 1000)
+                               window.size = 10000)
 
 
 alle.freq.df
@@ -198,4 +198,8 @@ pairwise.fst <- function(allele.freq.table) {
   return(final_output)
 }
 
-pairwise.fst(alle.freq.df)
+fst <- pairwise.fst(alle.freq.df)
+
+fst.summary <- fst %>% group_by(Pop_pair) %>% summarise(Mean = mean(Fst, na.rm= T),
+                                                        SD = sd(Fst, na.rm= T))
+
