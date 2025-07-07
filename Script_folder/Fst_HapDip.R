@@ -5,9 +5,9 @@ library(vcfR)
 
 ## Fst
 
-setwd("/home/paulos/PhD/WGS/Caenea/")
+setwd("/home/paulos/PhD/Haplo-Dip_Model/")
 # Import vcf
-vcf <- read.vcfR("Pruning/Caenea_99_Filtered_Pruned.vcf")
+vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_3pops_7indvs.vcf")
 # get only the gen# get only the genotypes from vcf file
 gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
 head(gt_matrix)
@@ -19,7 +19,7 @@ positions <- as.numeric(vcf@fix[, "POS"])
 remove(vcf)
 
 # Get pop file
-PopFile <- read.csv("Caenea_PopFile99.txt", sep="\t", header= F)
+PopFile <- read.csv("Fake_data/Caenea_PopFile_Fake.txt", sep="\t", header= F)
 head(PopFile)
 
 # only two columns, one with indv names and other with populations names
@@ -166,31 +166,34 @@ pairwise.fst <- function(allele.freq.table) {
   
   # for each population pair
   for (pair in 1:nrow(pop.pairs)) {
-    cat("Processing population pair:", pair, "\n")
     # Get the population pair
     pops <- c(pop.pairs[pair, 1], pop.pairs[pair, 2])
+    cat("Processing population pair:", pops$Pop1, "-", pops$Pop2, "\n")
     
     # subset data for desired populations
     allele.freqs_pop <- allele.freq.table %>% filter(Pop %in% c(pops))
     
     allele.freqs_pop$window_lims <- paste0(allele.freqs_pop$Window_starts, " - ", allele.freqs_pop$Window_ends)
-    # calculate mean and population variance for the allele frequency, by window
-    variables <- allele.freqs_pop %>% group_by(Contig, window_lims) %>% 
-      summarise(Mean.p = mean(Freq.A), 
-                Var.p = mean((Freq.A - mean(Freq.A))^2))
+    # calculate A allele mean and variance by contig and window
+    Fst.by.window <- allele.freqs_pop %>%
+      group_by(Contig, window_lims) %>% # group by contig and window
+      summarise(
+        Sum.Sites = sum(N_sites), # number of sites across the same window of both populations
+        Mean.p = mean(Freq.A), # mean frequency of A allele
+        Var.p = mean((Freq.A - mean(Freq.A))^2), # # population variance in frequency of the A allele
+        .groups = "drop"
+      )
+    # calculate Fst by contig and window
+    Fst.by.window <- Fst.by.window %>%
+      mutate(Fst = ifelse(Mean.p == 0 | Mean.p == 1, 0, Var.p / (Mean.p * (1 - Mean.p))))
     
-    # calculate the fst 
-    Fst.by.window <- variables %>% group_by(Contig, window_lims) %>%
-      summarise(Fst = ifelse(Mean.p == 0 | Mean.p == 1, 0, Var.p / (Mean.p * (1 - Mean.p))),
-                .groups = "drop"
-                )
     
     Fst.by.window$Pop_pair <- paste0(pops[1], " - ", pops[2])
     
     results[[pair]] <- Fst.by.window
     
     # Remove unnecessary objects and clean R environment
-    rm(pops, allele.freqs_pop, variables, Fst.by.window)
+    rm(pops, allele.freqs_pop, Fst.by.window)
     gc(verbose = FALSE)
   }
   
@@ -200,6 +203,10 @@ pairwise.fst <- function(allele.freq.table) {
 
 fst <- pairwise.fst(alle.freq.df)
 
-fst.summary <- fst %>% group_by(Pop_pair) %>% summarise(Mean = mean(Fst, na.rm= T),
-                                                        SD = sd(Fst, na.rm= T))
+library(matrixStats)
+summary_fst <- fst %>% group_by(Pop_pair) %>% summarise(
+  # weighted mean and sd of genetic diversity
+  wMean.Fst = weighted.mean(Fst, Sum.Sites, na.rm = T),
+  wSD.Fst = weightedSd(Fst, Sum.Sites, na.rm =T),
+)
 
