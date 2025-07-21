@@ -130,8 +130,7 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
           Exp.Hom = (Exp.AA + Exp.aa), # expected frequency of the homozygous in the window
           Exp.Het = Exp.Aa, # expected frequency of the heterozygous in the window
           Exp.M.Ref = Exp.A # expected frequency of males with reference allele in the window
-          Fis = (Exp.Het - Obs.Het) / Exp.Het # Fis in the window
-        )
+          )
         results_list[[idx]] <- results_window
         idx <- idx + 1
         
