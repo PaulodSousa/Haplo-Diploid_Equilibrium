@@ -1,9 +1,9 @@
 library(data.table)
 library(dplyr)
 library(vcfR)
-setwd("/home/paulos/PhD/WGS/Ebicolor/")
+setwd("/home/paulos/PhD/Haplo-Dip_Model/")
 # Import vcf
-vcf <- read.vcfR("Pruning/Ebicolor_66_Filtered_Pruned.vcf")
+vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_3pops_7indvs.vcf")
 # get only the gen# get only the genotypes from vcf file
 gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
 head(gt_matrix)
@@ -15,7 +15,8 @@ positions <- as.numeric(vcf@fix[, "POS"])
 remove(vcf)
 
 # Get pop file
-PopFile <- read.csv("Ebicolor_66_PopFile_SimpleNames.txt", sep=",", header= T, row.names = 1)
+PopFile <- read.csv("Fake_data/Caenea_PopFile_Fake.txt", 
+                    sep="\t", header= F)
 head(PopFile)
 
 # only two columns, one with indv names and other with populations names
@@ -129,8 +130,9 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
           Obs.M.Ref = A.m / Total_Samples, # observed frequency of males with reference allele in the window
           Exp.Hom = (Exp.AA + Exp.aa), # expected frequency of the homozygous in the window
           Exp.Het = Exp.Aa, # expected frequency of the heterozygous in the window
-          Exp.M.Ref = Exp.A # expected frequency of males with reference allele in the window
-          )
+          Exp.M.Ref = Exp.A, # expected frequency of males with reference allele in the window
+          Fis = ifelse(Exp.Aa == 0, NA, 1 - ((Aa.f / Total_Samples) / Exp.Aa)) # Fis in the window
+        )
         results_list[[idx]] <- results_window
         idx <- idx + 1
         
@@ -143,7 +145,7 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
       
       # Clear contig data
       rm(contig_data)
-      gc(verbose = FALSE)
+      #gc(verbose = FALSE)
     }
     all_results[[pop]] <- rbindlist(pop_results)
     # Clear population data
@@ -162,7 +164,7 @@ df <- compute_allele.freqs_W(geno.data = gt_matrix,
                              positions = positions, 
                              window.size = 10000)
 head(df)
-write.csv(df , "Diversity_Stats/complete_table.csv")
+write.csv(df , "Eflava/Diversity_Stats/complete_table_Het_mono.csv")
 
 # weighted means and standard deviations
 library(matrixStats)
@@ -181,9 +183,9 @@ summary_df <- df %>% group_by(Pop) %>% summarise(
   wSD.Obs.M.Ref = weightedSd(Obs.M.Ref, N_sites, na.rm =T),
 )
 
-summary_df
+summary_df %>% summarise(Mean = mean(wMean.Exp.Het), SD = sd(wMean.Exp.Het))
 
-write.csv(summary_df, "Diversity_Stats/summary_table.csv")
+write.csv(summary_df, "Eflava/Diversity_Stats/summary_table_Het_mono.csv")
 
 
 
