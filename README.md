@@ -54,9 +54,9 @@ if offspring is diploid, then: \
 if offspring is haploid, then: \
 | Parent genotype | Offspring genotype distribution | Parent frequency |
 |-----------------|---------------------------------|------------------|
-| AA              |       AA (100%)                 |       f(AA)      |
+| AA              |       A (100%)                 |       f(AA)      |
 | Aa              |       A (50%) + a (50%)         |       f(Aa)      |
-| aa              |       aa (100%)                 |       f(aa)      |
+| aa              |       a (100%)                 |       f(aa)      |
 
 The frequency of each genotype of next generation are: \
 f(AA)t+1 = 2x (f(AA) x f(A)) + 2x (f(Aa) x f(A))/2 = 2x (p²/2 x p/2) + (pq x p/2) = 2x p³/4 + p²q/2 = p³/2 + p²q/2 = p²/2 x (p + q) = p²/2 x 1 = p²/2
