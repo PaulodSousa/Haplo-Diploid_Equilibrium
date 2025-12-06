@@ -3,7 +3,7 @@ library(dplyr)
 library(vcfR)
 setwd("/home/paulos/PhD/Haplo-Dip_Model/")
 # Import vcf
-vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_3pops_7indvs.vcf")
+vcf <- read.vcfR("SLiM/n500_2Sex.vcf")
 # get only the gen# get only the genotypes from vcf file
 gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
 head(gt_matrix)
@@ -15,13 +15,14 @@ positions <- as.numeric(vcf@fix[, "POS"])
 remove(vcf)
 
 # Get pop file
-PopFile <- read.csv("Fake_data/Caenea_PopFile_Fake.txt", 
-                    sep="\t", header= F)
+PopFile <- read.csv("SLiM/PopFile.csv", 
+                    sep="\t", header= T)
 head(PopFile)
 
 # only two columns, one with indv names and other with populations names
-PopFile <- PopFile[-c(3:ncol(PopFile))]
+#PopFile <- PopFile[-c(3:ncol(PopFile))]
 colnames(PopFile) <- c("ID", "Pop")
+PopFile <- PopFile[c(1:20),]
 
 head(PopFile)
 # check if names from Popfile match names from vcf
@@ -89,9 +90,9 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
         # Lets calculate summary stats
         
         # 1st step: count each genotype in the window
-        AA.f <- sum(gt_flat %in% "0/0", na.rm= T)
-        Aa.f <- sum(gt_flat %in% c("0/1", "1/0"), na.rm= T)
-        aa.f <- sum(gt_flat %in% "1/1", na.rm= T)
+        AA.f <- sum(gt_flat %in% c("0/0", "0|0"), na.rm= T)
+        Aa.f <- sum(gt_flat %in% c("0/1", "1/0", "0|1", "1|0"), na.rm= T)
+        aa.f <- sum(gt_flat %in% c("1/1", "1|1"), na.rm= T)
         A.m <- sum(gt_flat %in% "0", na.rm= T)
         a.m <- sum(gt_flat %in% "1", na.rm= T)
         
@@ -118,6 +119,8 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
           Window_starts = start_pos, # starting position of window
           Window_ends = end_pos, # ending position of window 
           N_sites = Total_Samples, # total number of samples in the window
+          N_F = N.F, # Total number of female samples in the window
+          N_M = N.M, # Total number of male samples in the window
           N_AA = AA.f, # total number of AA genotypes in the window
           N_Aa = Aa.f, # total number of Aa genotypes in the window
           N_aa = aa.f, # total number of aa genotypes in the window
@@ -125,13 +128,13 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
           N_a = a.m, # total number of a genotypes in the window
           Freq.Ref = F.A, # frequency of the reference allele in the window
           Freq.Alt = F.a, # frequency of the alternative allele in the window
-          Obs.Hom = (AA.f + aa.f) / Total_Samples, # observed frequency of homozygous in the window
-          Obs.Het = Aa.f / Total_Samples, # observed frequency of heterozygous in the window
-          Obs.M.Ref = A.m / Total_Samples, # observed frequency of males with reference allele in the window
+          Obs.Hom = (AA.f + aa.f) / N.F, # observed frequency of homozygous in the window
+          Obs.Het = Aa.f / N.F, # observed frequency of heterozygous in the window
+          Obs.M.Ref = A.m / N.M, # observed frequency of males with reference allele in the window
           Exp.Hom = (Exp.AA + Exp.aa), # expected frequency of the homozygous in the window
           Exp.Het = Exp.Aa, # expected frequency of the heterozygous in the window
           Exp.M.Ref = Exp.A, # expected frequency of males with reference allele in the window
-          Fis = ifelse(Exp.Aa == 0, NA, 1 - ((Aa.f / Total_Samples) / Exp.Aa)) # Fis in the window
+          Fis = ifelse(Exp.Aa == 0, NA, 1 - ((Aa.f / N.F) / Exp.Aa)) # Fis in the window
         )
         results_list[[idx]] <- results_window
         idx <- idx + 1
@@ -164,7 +167,7 @@ df <- compute_allele.freqs_W(geno.data = gt_matrix,
                              positions = positions, 
                              window.size = 10000)
 head(df)
-write.csv(df , "Eflava/Diversity_Stats/complete_table_Het_mono.csv")
+write.csv(df ,"Data/My_Data/complete_tablePseudoHap_mono_miss1.csv")
 
 # weighted means and standard deviations
 library(matrixStats)
@@ -173,19 +176,19 @@ summary_df <- df %>% group_by(Pop) %>% summarise(
   wMean.Exp.Het = weighted.mean(Exp.Het, N_sites, na.rm = T),
   wSD.Exp.Het = weightedSd(Exp.Het, N_sites, na.rm =T),
   # weighted mean and sd of observed heterozygosity
-  wMean.Obs.Het = weighted.mean(Obs.Het, N_sites, na.rm = T),
-  wSD.Obs.Het = weightedSd(Obs.Het, N_sites, na.rm =T),
+  wMean.Obs.Het = weighted.mean(Obs.Het, N_F, na.rm = T),
+  wSD.Obs.Het = weightedSd(Obs.Het, N_F, na.rm =T),
   # weighted mean and sd of expected male ref. allele genotype
   wMean.Exp.M.Ref = weighted.mean(Exp.M.Ref, N_sites, na.rm = T),
   wSD.Exp.M.Ref = weightedSd(Exp.M.Ref, N_sites, na.rm =T),
   # weighted mean and sd of observed male ref. allele genotype
-  wMean.Obs.M.Ref = weighted.mean(Obs.M.Ref, N_sites, na.rm = T),
-  wSD.Obs.M.Ref = weightedSd(Obs.M.Ref, N_sites, na.rm =T),
+  wMean.Obs.M.Ref = weighted.mean(Obs.M.Ref, N_M, na.rm = T),
+  wSD.Obs.M.Ref = weightedSd(Obs.M.Ref, N_M, na.rm =T),
 )
 
 summary_df %>% summarise(Mean = mean(wMean.Exp.Het), SD = sd(wMean.Exp.Het))
 
-write.csv(summary_df, "Eflava/Diversity_Stats/summary_table_Het_mono.csv")
+write.csv(summary_df, "Data/My_Data/summary_table_PseudoHap_mono_miss1.csv")
 
 
 
