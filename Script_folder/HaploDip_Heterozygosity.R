@@ -128,13 +128,13 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
           N_a = a.m, # total number of a genotypes in the window
           Freq.Ref = F.A, # frequency of the reference allele in the window
           Freq.Alt = F.a, # frequency of the alternative allele in the window
-          Obs.Hom = (AA.f + aa.f) / N.F, # observed frequency of homozygous in the window
-          Obs.Het = Aa.f / N.F, # observed frequency of heterozygous in the window
-          Obs.M.Ref = A.m / N.M, # observed frequency of males with reference allele in the window
+          Obs.Hom = (AA.f + aa.f) / Total_Samples, # observed frequency of homozygous in the window
+          Obs.Het = Aa.f / Total_Samples, # observed frequency of heterozygous in the window
+          Obs.M.Ref = A.m / Total_Samples, # observed frequency of males with reference allele in the window
           Exp.Hom = (Exp.AA + Exp.aa), # expected frequency of the homozygous in the window
           Exp.Het = Exp.Aa, # expected frequency of the heterozygous in the window
           Exp.M.Ref = Exp.A, # expected frequency of males with reference allele in the window
-          Fis = ifelse(Exp.Aa == 0, NA, 1 - ((Aa.f / N.F) / Exp.Aa)) # Fis in the window
+          Fis = ifelse(Exp.Aa == 0, NA, 1 - ((Aa.f / Total_Samples) / Exp.Aa)) # Fis in the window
         )
         results_list[[idx]] <- results_window
         idx <- idx + 1
@@ -176,14 +176,14 @@ summary_df <- df %>% group_by(Pop) %>% summarise(
   wMean.Exp.Het = weighted.mean(Exp.Het, N_sites, na.rm = T),
   wSD.Exp.Het = weightedSd(Exp.Het, N_sites, na.rm =T),
   # weighted mean and sd of observed heterozygosity
-  wMean.Obs.Het = weighted.mean(Obs.Het, N_F, na.rm = T),
-  wSD.Obs.Het = weightedSd(Obs.Het, N_F, na.rm =T),
+  wMean.Obs.Het = weighted.mean(Obs.Het, N_sites, na.rm = T),
+  wSD.Obs.Het = weightedSd(Obs.Het, N_sites, na.rm =T),
   # weighted mean and sd of expected male ref. allele genotype
   wMean.Exp.M.Ref = weighted.mean(Exp.M.Ref, N_sites, na.rm = T),
   wSD.Exp.M.Ref = weightedSd(Exp.M.Ref, N_sites, na.rm =T),
   # weighted mean and sd of observed male ref. allele genotype
-  wMean.Obs.M.Ref = weighted.mean(Obs.M.Ref, N_M, na.rm = T),
-  wSD.Obs.M.Ref = weightedSd(Obs.M.Ref, N_M, na.rm =T),
+  wMean.Obs.M.Ref = weighted.mean(Obs.M.Ref, N_sites, na.rm = T),
+  wSD.Obs.M.Ref = weightedSd(Obs.M.Ref, N_sites, na.rm =T),
 )
 
 summary_df %>% summarise(Mean = mean(wMean.Exp.Het), SD = sd(wMean.Exp.Het))
