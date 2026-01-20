@@ -87,9 +87,9 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
         # Lets calculate gene diveristy (Hs)
         
         # 1st step: count each genotype in the window
-        AA.f <- sum(gt_flat %in% "0/0", na.rm= T)
-        Aa.f <- sum(gt_flat %in% c("0/1", "1/0"), na.rm= T)
-        aa.f <- sum(gt_flat %in% "1/1", na.rm= T)
+        AA.f <- sum(gt_flat %in% c("0/0", "0|0"), na.rm= T)
+        Aa.f <- sum(gt_flat %in% c("0/1", "1/0", "1|0", "0|1"), na.rm= T)
+        aa.f <- sum(gt_flat %in% c("1/1", "1|1"), na.rm= T)
         A.m <- sum(gt_flat %in% "0", na.rm= T)
         a.m <- sum(gt_flat %in% "1", na.rm= T)
         
@@ -112,7 +112,7 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
           Window_starts = start_pos, # starting position of window
           Window_ends = end_pos, # ending position of window 
           N_sites = Total_Samples, # total number of samples in the window
-          Hs = H # genetic diversity on the window
+          Neis_H = H # Nei's H on the window
         )
         results_list[[idx]] <- results_window
         idx <- idx + 1
@@ -147,6 +147,6 @@ head(df)
 library(matrixStats)
 summary_df <- df %>% group_by(Pop) %>% summarise(
   # weighted mean and sd of genetic diversity
-  wMean.Hs = weighted.mean(Hs, N_sites, na.rm = T),
-  wSD.Hs = weightedSd(Hs, N_sites, na.rm =T),
+  wMean.Neis_H = weighted.mean(Neis_H, N_sites, na.rm = T),
+  wSD.Neis_H = weightedSd(Neis_H, N_sites, na.rm =T),
 )
