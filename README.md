@@ -6,7 +6,7 @@ This repository contains:
 
 ## List of scripts
 HaploDip_Het_base.R > base script where the bases of the model are written and with some simulations \
-HaploDip_Het.R > script to calculate genotype frequencies and Fis (not agnostic to ploidy) \
+HaploDip_GenoFreq.R > script to calculate genotype frequencies and Fis (not agnostic to ploidy) \
 Fst_HapDip.R > script to calculate Fst from allele frequency data (agnostic to ploidy) \
 Haplo-Dip_Sex_Ref_Allele.R > script to calculate the frequency of the reference allele (0) in each sex across populations (agnostic to ploidy) \  
 HaploDip_Neis_H.R > script to calculate Nei's H, a geentic diversity metric (agnostic to ploidy) \
