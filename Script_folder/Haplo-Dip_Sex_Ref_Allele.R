@@ -2,6 +2,7 @@ library(data.table)
 library(dplyr)
 library(vcfR)
 setwd("/home/paulos/PhD/WGS/Cfuscata/")
+
 # Import vcf
 vcf <- read.vcfR("Pruning/Cfuscata_AllSites_Filtered_Pruned.vcf")
 # get only the gen# get only the genotypes from vcf file
