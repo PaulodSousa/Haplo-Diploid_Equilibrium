@@ -2,7 +2,6 @@
 library(dplyr)
 library(data.table)
 library(vcfR)
-
 ## Fst
 
 setwd("/home/paulos/PhD/Haplo-Dip_Model/")
