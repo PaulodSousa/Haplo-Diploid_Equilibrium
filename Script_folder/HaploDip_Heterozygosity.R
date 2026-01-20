@@ -2,6 +2,7 @@ library(data.table)
 library(dplyr)
 library(vcfR)
 setwd("/home/paulos/PhD/Haplo-Dip_Model/")
+
 # Import vcf
 vcf <- read.vcfR("SLiM/n500_2Sex.vcf")
 # get only the gen# get only the genotypes from vcf file
