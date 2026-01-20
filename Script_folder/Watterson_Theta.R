@@ -28,7 +28,7 @@ colnames(gt_matrix)==PopFile$ID
 
 is.polymorphic <- function(site_genotype) {
   # Remove NAs and keep only valid genotypes
-  valid_genotypes <- c("0/0", "0/1", "1/0", "1/1", "0", "1")
+  valid_genotypes <- c("0/0", "0/1", "1/0", "1/1", "0", "1", "0|0", "0|1", "1|0", "1|1")
   site_genotype.clean <- site_genotype[site_genotype %in% valid_genotypes]
   
   unique_gts <- unique(site_genotype.clean)
@@ -39,7 +39,7 @@ is.polymorphic <- function(site_genotype) {
     
     # If exactly two genotypes and both have just the  "A" or "a" alleles 
   } else if (length(unique_gts) == 2 &&
-             (all(unique_gts %in% c("0/0", "0")) || all(unique_gts %in% c("1/1", "1")))) {
+             (all(unique_gts %in% c("0/0", "0|0", "0")) || all(unique_gts %in% c("1/1", "1|1", "1")))) {
     poly <- FALSE
     
   } else {
@@ -129,7 +129,7 @@ compute_WTheta_W <- function(geno.data, pop.file, contigs, positions, window.siz
         
         # number of valid sites
         gt_flat <- as.vector(gt_window)
-        gt_keep <- gt_flat[gt_flat %in% c("0/0", "0/1", "1/0", "1/1", "1", "0")]
+        gt_keep <- gt_flat[gt_flat %in% c("0/0", "0|0", "0/1", "0|1", "1/0", "1|0", "1/1", "1|1", "1", "0")]
         
         num_sites <- length(gt_keep)
         
