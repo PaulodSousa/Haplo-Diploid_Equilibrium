@@ -5,10 +5,14 @@ This repository contains:
 3. A theoretical explanation of the model (see below)
 
 ## List of scripts
-HaploDip_base.R > base script where the bases of the model are written and with some simulations \
-HaploDip_Het.R > script with two functions: \
-1. compute_allele.freqs_SW() calculates several summary statistics by population from vcf and a pop file across costumized sliding windows. Outputs a dataframe with summary statistics by window and by population \
-2. summary.He() summarises the input of compute_allele.freqs_SW(). Outputs a dataframe with summary statistics by population 
+HaploDip_Het_base.R > base script where the bases of the model are written and with some simulations \
+HaploDip_Het.R > script to calculate genotype frequencies and Fis (not agnostic to ploidy) \
+Fst_HapDip.R > script to calculate Fst from allele frequency data (agnostic to ploidy) \
+Haplo-Dip_Sex_Ref_Allele.R > script to calculate the frequency of the reference allele (0) in each sex across populations (agnostic to ploidy) \  
+HaploDip_Neis_H.R > script to calculate Nei's H, a geentic diversity metric (agnostic to ploidy) \
+Watternson_Theta.R > script to calculate Watterson's Theta (agnostic to ploidy) 
+
+
 
 ## Theoretical explanation of the model
 In a haplo-diploid system where one sex is haploid and another diploid (e.g. hymentoptera insects) and assuming
