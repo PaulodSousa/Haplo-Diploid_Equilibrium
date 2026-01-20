@@ -89,9 +89,9 @@ compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions
         # Lets calculate summary stats
         
         # 1st step: count each genotype in the window
-        AA.f <- sum(gt_flat %in% "0/0", na.rm= T)
-        Aa.f <- sum(gt_flat %in% c("0/1", "1/0"), na.rm= T)
-        aa.f <- sum(gt_flat %in% "1/1", na.rm= T)
+        AA.f <- sum(gt_flat %in% c("0/0", "0|0"), na.rm= T)
+        Aa.f <- sum(gt_flat %in% c("0/1", "1/0", "0|1", "1|0"), na.rm= T)
+        aa.f <- sum(gt_flat %in% c("1/1", "1|1"), na.rm= T)
         A.m <- sum(gt_flat %in% "0", na.rm= T)
         a.m <- sum(gt_flat %in% "1", na.rm= T)
         
