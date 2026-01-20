@@ -29,7 +29,7 @@ head(PopFile)
 colnames(gt_matrix)==PopFile$ID
 
 
-compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
+compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, window.size, dip_freq) {
   
   all_results <- list()
   pops <- unique(pop.file$Pop)
@@ -105,12 +105,15 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
         F.A <- (2*AA.f + Aa.f + A.m) / (N.F * 2 + N.M)
         F.a <- (2*aa.f + Aa.f + a.m) / (N.F * 2 + N.M)
         
-        # 4th step: Calculate expected genotype frequencies (assuming an equal sex ratio) in the window
-        Exp.AA <- (F.A * F.A) * 0.5
-        Exp.aa <- (F.a * F.a) * 0.5
-        Exp.Aa <- 2 * (F.A * F.a) * 0.5
-        Exp.A <- F.A  * 0.5
-        Exp.a <- F.a  * 0.5
+        # 4th step: Calculate expected genotype frequencies in the window
+        # set haploid frequency from diploid (0.5 is highly recomended) 
+        hap.freq <- 1 - dip_freq
+
+        Exp.AA <- (F.A * F.A) * dip_freq
+        Exp.aa <- (F.a * F.a) * dip_freq
+        Exp.Aa <- 2 * (F.A * F.a) * dip_freq
+        Exp.A <- F.A  * hap.freq
+        Exp.a <- F.a  * hap.freq
         
         # save values here
         results_window <- data.table(
@@ -165,7 +168,8 @@ df <- compute_allele.freqs_W(geno.data = gt_matrix,
                              pop.file = PopFile, 
                              contigs = contig_vector, 
                              positions = positions, 
-                             window.size = 10000)
+                             window.size = 10000,
+                             dip_freq = 0.5)
 head(df)
 write.csv(df ,"Data/My_Data/complete_tablePseudoHap_mono_miss1.csv")
 
