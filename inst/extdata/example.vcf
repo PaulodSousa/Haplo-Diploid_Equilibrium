@@ -1,0 +1,16 @@
+##fileformat=VCFv4.2
+##fileDate=20250514
+##source=PLINKv1.90
+##contig=<ID=WSC5254_np1212,length=44558>
+##contig=<ID=WSC5254_np1356,length=1001>
+##INFO=<ID=PR,Number=0,Type=Flag,Description="Provisional reference allele, may not be based on real reference genome">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	Ca_001	Ca_002	Ca_003	Ca_004	Ca_005
+WSC5254_np1212	2734	WSC5254_np1212:2734:A:G	G	A	.	.	PR	GT	0/0	0/0	0	0	0/1
+WSC5254_np1212	10972	WSC5254_np1212:10972:A:G	G	A	.	.	PR	GT	0/0	0/0	0	0	0/1
+WSC5254_np1212	11133	WSC5254_np1212:11133:C:T	C	T	.	.	PR	GT	0/0	0/0	0	1	0/.
+WSC5254_np1212	33981	WSC5254_np1212:33981:C:T	C	T	.	.	PR	GT	0/0	0/0	0	0	0/1
+WSC5254_np1212	44395	WSC5254_np1212:44395:C:T	C	T	.	.	PR	GT	0/0	0/0	0	1	0/1
+WSC5254_np1212	44557	WSC5254_np1212:44557:A:G	G	A	.	.	PR	GT	0/0	0/0	0	0	./.
+WSC5254_np1356	55	WSC5254_np1356:55:A:G	G	A	.	.	PR	GT	0/0	0/0	0	0	0/1
+WSC5254_np1356	1101	WSC5254_np1356:1001:C:T	C	T	.	.	PR	GT	0/0	0/0	0	1	./0
