@@ -4,7 +4,7 @@ library(vcfR)
 setwd("/home/paulos/PhD/Haplo-Dip_Model/")
 
 # Import vcf
-vcf <- read.vcfR("SLiM/n500_2Sex.vcf")
+vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_2pops_5indvs.vcf")
 # get only the gen# get only the genotypes from vcf file
 gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
 head(gt_matrix)
@@ -16,14 +16,12 @@ positions <- as.numeric(vcf@fix[, "POS"])
 remove(vcf)
 
 # Get pop file
-PopFile <- read.csv("SLiM/PopFile.csv", 
-                    sep="\t", header= T)
+PopFile <- read.csv("Fake_data/Caenea_PopFile_Fake.txt", 
+                    sep="\t", header= F)
 head(PopFile)
 
 # only two columns, one with indv names and other with populations names
-#PopFile <- PopFile[-c(3:ncol(PopFile))]
 colnames(PopFile) <- c("ID", "Pop")
-PopFile <- PopFile[c(1:20),]
 
 head(PopFile)
 # check if names from Popfile match names from vcf
