@@ -58,7 +58,7 @@
 #' @seealso [summarize_sex_ref()] for computing weighted genome-wide summary
 #'   statistics from the output.
 #'
-#' @export
+#' @export compute.Female.Male.allele.W
 compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions, window.size) {
   
   all_results <- list()
