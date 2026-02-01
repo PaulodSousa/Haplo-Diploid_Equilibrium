@@ -4,7 +4,7 @@ library(vcfR)
 setwd("/home/paulos/PhD/WGS/Cfuscata/")
 
 # Import vcf
-vcf <- read.vcfR("Pruning/Cfuscata_AllSites_Filtered_Pruned.vcf")
+vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_2pops_5indvs.vcf")
 # get only the gen# get only the genotypes from vcf file
 gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
 head(gt_matrix)
@@ -16,7 +16,7 @@ positions <- as.numeric(vcf@fix[, "POS"])
 remove(vcf)
 
 # Get pop file
-PopFile <- read.csv("Cfuscata_PopFile_SimpleNames.txt", 
+PopFile <- read.csv("Caenea_PopFile_Fake", 
                     sep=",", header= F)
 head(PopFile)
 
