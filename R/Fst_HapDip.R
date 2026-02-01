@@ -22,7 +22,6 @@ PopFile <- read.csv("Fake_data/Caenea_PopFile_Fake.txt", sep="\t", header= F)
 head(PopFile)
 
 # only two columns, one with indv names and other with populations names
-PopFile <- PopFile[-c(3:ncol(PopFile))]
 colnames(PopFile) <- c("ID", "Pop")
 
 head(PopFile)

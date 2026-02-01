@@ -1,10 +1,10 @@
 library(data.table)
 library(dplyr)
 library(vcfR)
-setwd("/home/paulos/PhD/WGS/Cfuscata/")
+setwd("./")
 
 # Import vcf
-vcf <- read.vcfR("Pruning/Cfuscata_AllSites_Filtered_Pruned.vcf")
+vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_2pops_5indvs.vcf")
 # get only the gen# get only the genotypes from vcf file
 gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
 head(gt_matrix)
@@ -16,12 +16,11 @@ positions <- as.numeric(vcf@fix[, "POS"])
 remove(vcf)
 
 # Get pop file
-PopFile <- read.csv("Cfuscata_PopFile_SimpleNames.txt", 
-                    sep=",", header= F)
+PopFile <- read.csv("Fake_data/Caenea_PopFile_Fake.txt", 
+                    sep="\t", header= F)
 head(PopFile)
 
 # only two columns, one with indv names and other with populations names
-PopFile <- PopFile[-c(3:ncol(PopFile))]
 colnames(PopFile) <- c("ID", "Pop")
 
 head(PopFile)
