@@ -1,3 +1,5 @@
+[![R-CMD-check](https://github.com/PaulodSousa/Haplo-Diploid_Equilibrium/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/PaulodSousa/Haplo-Diploid_Equilibrium/actions/workflows/R-CMD-check.yaml)
+
 # Haplo-Diploid Equilibrium
 This repository contains:
 1. R scripts to estimate pop. gen. summary statistics from haplo-diploid systems (Script_folder)

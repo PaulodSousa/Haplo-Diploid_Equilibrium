@@ -3,3 +3,4 @@
 ^\.*\\.Rproj\.user$$
 ^Fake_data$
 ^unfinished$
+^\.github$
