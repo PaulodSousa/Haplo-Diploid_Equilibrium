@@ -4,3 +4,4 @@
 ^Fake_data$
 ^unfinished$
 ^\.github$
+^\.env$
