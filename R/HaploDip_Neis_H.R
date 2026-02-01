@@ -1,27 +1,61 @@
-library(data.table)
-library(dplyr)
-library(vcfR)
-setwd("./")
-# Import vcf
-vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_2pops_5indvs.vcf")
-# get only the gen# get only the genotypes from vcf file
-gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
-head(gt_matrix)
-
-# get positions and contigs (for sliding windows)
-contig_vector <- vcf@fix[, "CHROM"]
-positions <- as.numeric(vcf@fix[, "POS"])
-
-remove(vcf)
-
-# Get pop file
-PopFile <- read.csv("Fake_data/Caenea_PopFile_Fake.txt", sep="\t", header= F)
-head(PopFile)
-
-# only two columns, one with indv names and other with populations names
-colnames(PopFile) <- c("ID", "Pop")
-
-
+#' Compute per-window Nei's H (gene diversity)
+#'
+#' Iterates over each population defined in \code{pop.file}, splits the
+#' genotype data by contig, and slides a fixed-size window along each contig
+#' to compute Nei's H (expected heterozygosity under random mating) within
+#' that window. Nei's H is calculated as \code{2pq}, where \code{p} and
+#' \code{q} are the reference and alternative allele frequencies respectively.
+#' Both diploid genotypes (\code{"0/0"}, \code{"0/1"}, \code{"1/1"}) and
+#' haploid genotypes (\code{"0"}, \code{"1"}) are recognised when computing
+#' allele frequencies, making the calculation agnostic to ploidy.
+#'
+#' @param geno.data A character matrix of genotype strings with dimensions
+#'   \code{n_sites x n_individuals}, as returned by [vcf2GT()].
+#' @param pop.file A \code{data.frame} or \code{data.table} with at least two
+#'   columns: \code{ID} (individual identifiers matching the column names of
+#'   \code{geno.data}) and \code{Pop} (population labels).
+#' @param contigs A character vector of length \code{n_sites} containing the
+#'   contig (chromosome) name for each variant site, as returned by [vcf2GT()].
+#' @param positions A numeric vector of length \code{n_sites} containing the
+#'   physical position (bp) of each variant site, as returned by [vcf2GT()].
+#' @param window.size A single positive integer giving the size of each
+#'   sliding window in base pairs.
+#'
+#' @return A [data.table::data.table] with one row per population-contig-window
+#'   combination and the following columns:
+#'   \describe{
+#'     \item{Pop}{Population label.}
+#'     \item{Contig}{Contig (chromosome) name.}
+#'     \item{Window_starts}{Genomic coordinate (bp) of the first position in
+#'       the window.}
+#'     \item{Window_ends}{Genomic coordinate (bp) of the last position in the
+#'       window (\code{Window_starts + window.size - 1}).}
+#'     \item{N_sites}{Total number of called genotype entries (diploid +
+#'       haploid) within the window.}
+#'     \item{Neis_H}{Nei's H (gene diversity) for the window, computed as
+#'       \code{2 * Freq.Ref * Freq.Alt}.}
+#'   }
+#'
+#' @examples
+#' # Assuming vcf2GT() has already been run:
+#' # result   <- vcf2GT("path/to/input.vcf")
+#' # gt       <- result$gt_matrix
+#' # contigs  <- result$contig_vector
+#' # pos      <- result$positions
+#' #
+#' # pop.file <- data.frame(ID  = colnames(gt),
+#' #                         Pop = c("PopA","PopA","PopB","PopB"))
+#' #
+#' # hs <- compute_Hs_W(geno.data   = gt,
+#' #                     pop.file    = pop.file,
+#' #                     contigs     = contigs,
+#' #                     positions   = pos,
+#' #                     window.size = 10000)
+#'
+#' @seealso [summarize_NeisH()] for computing weighted genome-wide summary
+#'   statistics from the output.
+#'
+#' @export
 compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
   
   all_results <- list()
@@ -134,15 +168,40 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
   return(final_output)
 }
 
-df <- compute_Hs_W(geno.data = gt_matrix, pop.file = PopFile, 
-                   contigs = contig_vector, positions = positions, 
-                   window.size = 10000)
-head(df)
 
-# weighted means and standard deviations
-library(matrixStats)
-summary_df <- df %>% group_by(Pop) %>% summarise(
+#' Summarize per-window Nei's H per population
+#'
+#' Computes the site-count-weighted mean and standard deviation of Nei's H
+#' across all windows for each population, using the per-window table produced
+#' by [compute_Hs_W()]. Weighting by \code{N_sites} ensures that windows with
+#' more called genotypes contribute more to the estimate.
+#'
+#' @param neis_table A [data.table::data.table] produced by [compute_Hs_W()],
+#'   containing at minimum the columns \code{Pop}, \code{N_sites}, and
+#'   \code{Neis_H}.
+#'
+#' @return A [tibble::tibble] with one row per population and the following
+#'   columns:
+#'   \describe{
+#'     \item{Pop}{Population label.}
+#'     \item{wMean.Neis_H}{Weighted mean of Nei's H across all windows.}
+#'     \item{wSD.Neis_H}{Weighted standard deviation of Nei's H across all
+#'       windows.}
+#'   }
+#'
+#' @examples
+#' # Assuming compute_Hs_W() has already been run:
+#' # hs      <- compute_Hs_W(...)
+#' # summary <- summarize_NeisH(hs)
+#'
+#' @seealso [compute_Hs_W()] for computing the input per-window table.
+#'
+#' @export
+summarize_NeisH <- function(neis_table) {
+  summary_df <- neis_table %>% group_by(Pop) %>% summarise(
   # weighted mean and sd of genetic diversity
-  wMean.Neis_H = weighted.mean(Neis_H, N_sites, na.rm = T),
-  wSD.Neis_H = weightedSd(Neis_H, N_sites, na.rm =T),
-)
+  wMean.Neis_H = matrixStats::weighted.mean(Neis_H, N_sites, na.rm = TRUE),
+  wSD.Neis_H = matrixStats::weightedSd(Neis_H, N_sites, na.rm = TRUE)
+  )
+  return(summary_df)
+}

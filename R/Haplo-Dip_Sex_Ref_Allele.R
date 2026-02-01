@@ -1,33 +1,64 @@
-library(data.table)
-library(dplyr)
-library(vcfR)
-setwd("./")
-
-# Import vcf
-vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_2pops_5indvs.vcf")
-# get only the gen# get only the genotypes from vcf file
-gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
-head(gt_matrix)
-
-# get positions and contigs (for sliding windows)
-contig_vector <- vcf@fix[, "CHROM"]
-positions <- as.numeric(vcf@fix[, "POS"])
-
-remove(vcf)
-
-# Get pop file
-PopFile <- read.csv("Fake_data/Caenea_PopFile_Fake.txt", 
-                    sep="\t", header= F)
-head(PopFile)
-
-# only two columns, one with indv names and other with populations names
-colnames(PopFile) <- c("ID", "Pop")
-
-head(PopFile)
-# check if names from Popfile match names from vcf
-colnames(gt_matrix)==PopFile$ID
-
-
+#' Compute per-window reference allele frequencies by sex
+#'
+#' Iterates over each population defined in \code{pop.file}, splits the
+#' genotype data by contig, and slides a fixed-size window along each contig
+#' to compute the reference allele frequency separately for diploid individuals
+#' (females), haploid individuals (males), and both sexes combined. Sex is
+#' inferred from ploidy: diploid genotypes (\code{"0/0"}, \code{"0/1"},
+#' \code{"1/1"}) are assumed to belong to females and haploid genotypes
+#' (\code{"0"}, \code{"1"}) to males.
+#'
+#' @param geno.data A character matrix of genotype strings with dimensions
+#'   \code{n_sites x n_individuals}, as returned by [vcf2GT()].
+#' @param pop.file A \code{data.frame} or \code{data.table} with at least two
+#'   columns: \code{ID} (individual identifiers matching the column names of
+#'   \code{geno.data}) and \code{Pop} (population labels).
+#' @param contigs A character vector of length \code{n_sites} containing the
+#'   contig (chromosome) name for each variant site, as returned by [vcf2GT()].
+#' @param positions A numeric vector of length \code{n_sites} containing the
+#'   physical position (bp) of each variant site, as returned by [vcf2GT()].
+#' @param window.size A single positive integer giving the size of each
+#'   sliding window in base pairs.
+#'
+#' @return A [data.table::data.table] with one row per population-contig-window
+#'   combination and the following columns:
+#'   \describe{
+#'     \item{Pop}{Population label.}
+#'     \item{Contig}{Contig (chromosome) name.}
+#'     \item{Window_starts}{Genomic coordinate (bp) of the first position in
+#'       the window.}
+#'     \item{Window_ends}{Genomic coordinate (bp) of the last position in the
+#'       window (\code{Window_starts + window.size - 1}).}
+#'     \item{N_sites}{Total number of called genotype entries (diploid +
+#'       haploid) within the window.}
+#'     \item{Females.freq}{Reference allele frequency computed from diploid
+#'       genotypes only: \code{(2*N_AA + N_Aa) / (2*N_dip)}.}
+#'     \item{Males.freq}{Reference allele frequency computed from haploid
+#'       genotypes only: \code{N_A / N_hap}.}
+#'     \item{Total.freq}{Reference allele frequency computed from both sexes
+#'       combined: \code{(2*N_AA + N_Aa + N_A) / (2*N_dip + N_hap)}.}
+#'   }
+#'
+#' @examples
+#' # Assuming vcf2GT() has already been run:
+#' # result   <- vcf2GT("path/to/input.vcf")
+#' # gt       <- result$gt_matrix
+#' # contigs  <- result$contig_vector
+#' # pos      <- result$positions
+#' #
+#' # pop.file <- data.frame(ID  = colnames(gt),
+#' #                         Pop = c("PopA","PopA","PopB","PopB"))
+#' #
+#' # sex_ref <- compute.Female.Male.allele.W(geno.data   = gt,
+#' #                                         pop.file    = pop.file,
+#' #                                         contigs     = contigs,
+#' #                                         positions   = pos,
+#' #                                         window.size = 10000)
+#'
+#' @seealso [summarize_sex_ref()] for computing weighted genome-wide summary
+#'   statistics from the output.
+#'
+#' @export
 compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions, window.size) {
   
   all_results <- list()
@@ -140,22 +171,58 @@ compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions
   return(final_output)
 }
 
-df <- compute.Female.Male.allele.W(geno.data = gt_matrix, pop.file = PopFile, 
-                                   contigs = contig_vector, 
-                                   positions = positions, 
-                                   window.size = 10000)
-head(df)
-library(matrixStats)
-summary_df <- df %>% group_by(Pop) %>% summarise(
-  # females
-  wMean.F.Ref = weighted.mean(Females.freq, N_sites, na.rm = T),
-  wSD.F.Ref = weightedSd(Females.freq, N_sites, na.rm =T),
-  # males
-  wMean.M.Ref = weighted.mean(Males.freq, N_sites, na.rm = T),
-  wSD.M.Ref = weightedSd(Males.freq, N_sites, na.rm =T),
-  # both sexes
-  wMean.T.Ref = weighted.mean(Total.freq, N_sites, na.rm = T),
-  wSD.T.Ref = weightedSd(Total.freq, N_sites, na.rm =T)
-)
 
-summary_df
+#' Summarize per-sex reference allele frequencies per population
+#'
+#' Computes the site-count-weighted mean and standard deviation of the
+#' reference allele frequency for females, males, and both sexes combined,
+#' across all windows for each population. Uses the per-window table produced
+#' by [compute.Female.Male.allele.W()]. Weighting by \code{N_sites} ensures
+#' that windows with more called genotypes contribute more to each estimate.
+#'
+#' @param allele_table A [data.table::data.table] produced by
+#'   [compute.Female.Male.allele.W()], containing at minimum the columns
+#'   \code{Pop}, \code{N_sites}, \code{Females.freq}, \code{Males.freq}, and
+#'   \code{Total.freq}.
+#'
+#' @return A [tibble::tibble] with one row per population and the following
+#'   columns:
+#'   \describe{
+#'     \item{Pop}{Population label.}
+#'     \item{wMean.F.Ref}{Weighted mean of the female reference allele
+#'       frequency across all windows.}
+#'     \item{wSD.F.Ref}{Weighted standard deviation of the female reference
+#'       allele frequency across all windows.}
+#'     \item{wMean.M.Ref}{Weighted mean of the male reference allele frequency
+#'       across all windows.}
+#'     \item{wSD.M.Ref}{Weighted standard deviation of the male reference
+#'       allele frequency across all windows.}
+#'     \item{wMean.T.Ref}{Weighted mean of the combined reference allele
+#'       frequency across all windows.}
+#'     \item{wSD.T.Ref}{Weighted standard deviation of the combined reference
+#'       allele frequency across all windows.}
+#'   }
+#'
+#' @examples
+#' # Assuming compute.Female.Male.allele.W() has already been run:
+#' # sex_ref <- compute.Female.Male.allele.W(...)
+#' # summary <- summarize_sex_ref(sex_ref)
+#'
+#' @seealso [compute.Female.Male.allele.W()] for computing the input
+#'   per-window table.
+#'
+#' @export
+summarize_sex_ref <- function(allele_table) {
+  summary_df <- allele_table %>% group_by(Pop) %>% summarise(
+  # females
+  wMean.F.Ref = matrixStats::weighted.mean(Females.freq, N_sites, na.rm = TRUE),
+  wSD.F.Ref = matrixStats::weightedSd(Females.freq, N_sites, na.rm =TRUE),
+  # males
+  wMean.M.Ref = matrixStats::weighted.mean(Males.freq, N_sites, na.rm = TRUE),
+  wSD.M.Ref = matrixStats::weightedSd(Males.freq, N_sites, na.rm =TRUE),
+  # both sexes
+  wMean.T.Ref = matrixStats::weighted.mean(Total.freq, N_sites, na.rm = TRUE),
+  wSD.T.Ref = matrixStats::weightedSd(Total.freq, N_sites, na.rm =TRUE)
+  )
+  return(summary_df)
+}

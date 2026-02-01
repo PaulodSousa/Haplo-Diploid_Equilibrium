@@ -1,33 +1,91 @@
-library(data.table)
-library(dplyr)
-library(vcfR)
-setwd("/home/paulos/PhD/Haplo-Dip_Model/")
-
-# Import vcf
-vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_2pops_5indvs.vcf")
-# get only the gen# get only the genotypes from vcf file
-gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
-head(gt_matrix)
-
-# get positions and contigs (for sliding windows)
-contig_vector <- vcf@fix[, "CHROM"]
-positions <- as.numeric(vcf@fix[, "POS"])
-
-remove(vcf)
-
-# Get pop file
-PopFile <- read.csv("Fake_data/Caenea_PopFile_Fake.txt", 
-                    sep="\t", header= F)
-head(PopFile)
-
-# only two columns, one with indv names and other with populations names
-colnames(PopFile) <- c("ID", "Pop")
-
-head(PopFile)
-# check if names from Popfile match names from vcf
-colnames(gt_matrix)==PopFile$ID
-
-
+#' Compute per-window genotype frequencies, allele frequencies, and Fis
+#'
+#' Iterates over each population defined in \code{pop.file}, splits the
+#' genotype data by contig, and slides a fixed-size window along each contig
+#' to compute observed and expected genotype frequencies, allele frequencies,
+#' and the inbreeding coefficient (Fis). Expected genotype frequencies are
+#' derived from the haplo-diploid equilibrium model, where the proportion of
+#' diploid and haploid individuals in the population is controlled by
+#' \code{dip_freq}. Sex is inferred from ploidy: diploid genotypes
+#' (\code{"0/0"}, \code{"0/1"}, \code{"1/1"}) are assumed to belong to females
+#' and haploid genotypes (\code{"0"}, \code{"1"}) to males. Fis is computed as
+#' \code{1 - (Obs.Het / Exp.Het)} and is set to \code{NA} when expected
+#' heterozygosity is zero.
+#'
+#' @param geno.data A character matrix of genotype strings with dimensions
+#'   \code{n_sites x n_individuals}, as returned by [vcf2GT()].
+#' @param pop.file A \code{data.frame} or \code{data.table} with at least two
+#'   columns: \code{ID} (individual identifiers matching the column names of
+#'   \code{geno.data}) and \code{Pop} (population labels).
+#' @param contigs A character vector of length \code{n_sites} containing the
+#'   contig (chromosome) name for each variant site, as returned by [vcf2GT()].
+#' @param positions A numeric vector of length \code{n_sites} containing the
+#'   physical position (bp) of each variant site, as returned by [vcf2GT()].
+#' @param window.size A single positive integer giving the size of each
+#'   sliding window in base pairs.
+#' @param dip_freq A single numeric value in the interval \code{(0, 1)}
+#'   giving the expected proportion of diploid individuals in the population.
+#'   The haploid proportion is set to \code{1 - dip_freq}. A value of
+#'   \code{0.5} corresponds to an equal sex ratio and is recommended for
+#'   standard haplo-diploid systems.
+#'
+#' @return A [data.table::data.table] with one row per population-contig-window
+#'   combination and the following columns:
+#'   \describe{
+#'     \item{Pop}{Population label.}
+#'     \item{Contig}{Contig (chromosome) name.}
+#'     \item{Window_starts}{Genomic coordinate (bp) of the first position in
+#'       the window.}
+#'     \item{Window_ends}{Genomic coordinate (bp) of the last position in the
+#'       window (\code{Window_starts + window.size - 1}).}
+#'     \item{N_sites}{Total number of called genotype entries (diploid +
+#'       haploid) within the window.}
+#'     \item{N_F}{Number of diploid (female) genotype entries in the window.}
+#'     \item{N_M}{Number of haploid (male) genotype entries in the window.}
+#'     \item{N_AA}{Count of homozygous reference (\code{AA}) genotypes.}
+#'     \item{N_Aa}{Count of heterozygous (\code{Aa}) genotypes.}
+#'     \item{N_aa}{Count of homozygous alternative (\code{aa}) genotypes.}
+#'     \item{N_A}{Count of haploid reference (\code{A}) genotypes.}
+#'     \item{N_a}{Count of haploid alternative (\code{a}) genotypes.}
+#'     \item{Freq.Ref}{Overall reference allele frequency in the window.}
+#'     \item{Freq.Alt}{Overall alternative allele frequency in the window.}
+#'     \item{Obs.Hom}{Observed proportion of homozygous diploid genotypes
+#'       (\code{AA + aa}) relative to total entries.}
+#'     \item{Obs.Het}{Observed proportion of heterozygous diploid genotypes
+#'       (\code{Aa}) relative to total entries.}
+#'     \item{Obs.M.Ref}{Observed proportion of haploid reference genotypes
+#'       (\code{A}) relative to total entries.}
+#'     \item{Exp.Hom}{Expected frequency of homozygous diploid genotypes
+#'       under the haplo-diploid equilibrium model.}
+#'     \item{Exp.Het}{Expected frequency of heterozygous diploid genotypes
+#'       under the haplo-diploid equilibrium model.}
+#'     \item{Exp.M.Ref}{Expected frequency of haploid reference genotypes
+#'       under the haplo-diploid equilibrium model.}
+#'     \item{Fis}{Inbreeding coefficient for the window, or \code{NA} when
+#'       expected heterozygosity is zero.}
+#'   }
+#'
+#' @examples
+#' # Assuming vcf2GT() has already been run:
+#' # result   <- vcf2GT("path/to/input.vcf")
+#' # gt       <- result$gt_matrix
+#' # contigs  <- result$contig_vector
+#' # pos      <- result$positions
+#' #
+#' # pop.file <- data.frame(ID  = colnames(gt),
+#' #                         Pop = c("PopA","PopA","PopB","PopB"))
+#' #
+#' # geno <- compute_allele.freqs_W(geno.data   = gt,
+#' #                                pop.file    = pop.file,
+#' #                                contigs     = contigs,
+#' #                                positions   = pos,
+#' #                                window.size = 10000,
+#' #                                dip_freq    = 0.5)
+#'
+#' @seealso [summarize_geno()] for computing weighted genome-wide summary
+#'   statistics from the output.
+#'
+#' @export
 compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, window.size, dip_freq) {
   
   all_results <- list()
@@ -163,38 +221,68 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
 }
 
 
-df <- compute_allele.freqs_W(geno.data = gt_matrix, 
-                             pop.file = PopFile, 
-                             contigs = contig_vector, 
-                             positions = positions, 
-                             window.size = 10000,
-                             dip_freq = 0.5)
-head(df)
-write.csv(df ,"Data/My_Data/complete_tablePseudoHap_mono_miss1.csv")
-
-# weighted means and standard deviations
-library(matrixStats)
-summary_df <- df %>% group_by(Pop) %>% summarise(
-  # weighted mean and sd of expected heterozygosity
-  wMean.Exp.Het = weighted.mean(Exp.Het, N_sites, na.rm = T),
-  wSD.Exp.Het = weightedSd(Exp.Het, N_sites, na.rm =T),
-  # weighted mean and sd of observed heterozygosity
-  wMean.Obs.Het = weighted.mean(Obs.Het, N_sites, na.rm = T),
-  wSD.Obs.Het = weightedSd(Obs.Het, N_sites, na.rm =T),
-  # weighted mean and sd of expected male ref. allele genotype
-  wMean.Exp.M.Ref = weighted.mean(Exp.M.Ref, N_sites, na.rm = T),
-  wSD.Exp.M.Ref = weightedSd(Exp.M.Ref, N_sites, na.rm =T),
-  # weighted mean and sd of observed male ref. allele genotype
-  wMean.Obs.M.Ref = weighted.mean(Obs.M.Ref, N_sites, na.rm = T),
-  wSD.Obs.M.Ref = weightedSd(Obs.M.Ref, N_sites, na.rm =T),
-)
-
-summary_df %>% summarise(Mean = mean(wMean.Exp.Het), SD = sd(wMean.Exp.Het))
-
-write.csv(summary_df, "Data/My_Data/summary_table_PseudoHap_mono_miss1.csv")
-
-
-
-
+#' Summarize per-window genotype frequencies per population
+#'
+#' Computes the site-count-weighted mean and standard deviation of observed
+#' and expected heterozygosity, and of observed and expected haploid reference
+#' allele frequency, across all windows for each population. Uses the
+#' per-window table produced by [compute_allele.freqs_W()]. Weighting by
+#' \code{N_sites} ensures that windows with more called genotypes contribute
+#' more to each estimate.
+#'
+#' @param geno_table A [data.table::data.table] produced by
+#'   [compute_allele.freqs_W()], containing at minimum the columns
+#'   \code{Pop}, \code{N_sites}, \code{Exp.Het}, \code{Obs.Het},
+#'   \code{Exp.M.Ref}, and \code{Obs.M.Ref}.
+#'
+#' @return A [tibble::tibble] with one row per population and the following
+#'   columns:
+#'   \describe{
+#'     \item{Pop}{Population label.}
+#'     \item{wMean.Exp.Het}{Weighted mean of expected heterozygosity across
+#'       all windows.}
+#'     \item{wSD.Exp.Het}{Weighted standard deviation of expected
+#'       heterozygosity across all windows.}
+#'     \item{wMean.Obs.Het}{Weighted mean of observed heterozygosity across
+#'       all windows.}
+#'     \item{wSD.Obs.Het}{Weighted standard deviation of observed
+#'       heterozygosity across all windows.}
+#'     \item{wMean.Exp.M.Ref}{Weighted mean of expected haploid reference
+#'       allele frequency across all windows.}
+#'     \item{wSD.Exp.M.Ref}{Weighted standard deviation of expected haploid
+#'       reference allele frequency across all windows.}
+#'     \item{wMean.Obs.M.Ref}{Weighted mean of observed haploid reference
+#'       allele frequency across all windows.}
+#'     \item{wSD.Obs.M.Ref}{Weighted standard deviation of observed haploid
+#'       reference allele frequency across all windows.}
+#'   }
+#'
+#' @examples
+#' # Assuming compute_allele.freqs_W() has already been run:
+#' # geno    <- compute_allele.freqs_W(...)
+#' # summary <- summarize_geno(geno)
+#'
+#' @seealso [compute_allele.freqs_W()] for computing the input per-window
+#'   table.
+#'
+#' @export
+summarize_geno <- function(geno_table){
+  summary_df <- geno_table %>% group_by(Pop) %>% summarise(
+    # weighted mean and sd of expected heterozygosity
+    wMean.Exp.Het = matrixStats::weighted.mean(Exp.Het, N_sites, na.rm = TRUE),
+    wSD.Exp.Het = matrixStats::weightedSd(Exp.Het, N_sites, na.rm = TRUE),
+    # weighted mean and sd of observed heterozygosity
+    wMean.Obs.Het = matrixStats::weighted.mean(Obs.Het, N_sites, na.rm = TRUE),
+    wSD.Obs.Het = matrixStats::weightedSd(Obs.Het, N_sites, na.rm = TRUE),
+    # weighted mean and sd of expected male ref. allele genotype
+    wMean.Exp.M.Ref = matrixStats::weighted.mean(Exp.M.Ref, N_sites, na.rm = TRUE),
+    wSD.Exp.M.Ref = matrixStats::weightedSd(Exp.M.Ref, N_sites, na.rm = TRUE),
+    # weighted mean and sd of observed male ref. allele genotype
+    wMean.Obs.M.Ref = matrixStats::weighted.mean(Obs.M.Ref, N_sites, na.rm = TRUE),
+    wSD.Obs.M.Ref = matrixStats::weightedSd(Obs.M.Ref, N_sites, na.rm = TRUE)
+  )
+  return(summary_df)
+  # summary_df %>% summarise(Mean = mean(wMean.Exp.Het), SD = sd(wMean.Exp.Het))
+}
 
 
