@@ -4,7 +4,7 @@ library(data.table)
 library(vcfR)
 ## Fst
 
-setwd("/home/paulos/PhD/Haplo-Dip_Model/")
+setwd("./")
 # Import vcf
 vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_2pops_5indvs.vcf")
 # get only the gen# get only the genotypes from vcf file
