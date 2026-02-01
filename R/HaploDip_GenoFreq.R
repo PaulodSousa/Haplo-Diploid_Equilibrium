@@ -100,7 +100,7 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
     pops_samples <- pop.file$ID[pop.file$Pop == pop]
     gt_matrix_pop <- geno.data[, pops_samples, drop = FALSE]
     
-    df <- data.table(
+    df <- data.table::data.table(
       contig = contigs, 
       pos = positions, 
       gt_matrix_pop
@@ -117,7 +117,7 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
       contig_data <- df[contig == contig_name]
       
       # Sort by genomic position
-      setorder(contig_data, pos)
+      data.table::setorder(contig_data, pos)
       
       # Define window start and end
       contig_start <- min(contig_data$pos)
@@ -173,7 +173,7 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
         Exp.a <- F.a  * hap.freq
         
         # save values here
-        results_window <- data.table(
+        results_window <- data.table::data.table(
           Pop = pop, # which population
           Contig = contig_name, # which contig
           Window_starts = start_pos, # starting position of window
@@ -203,20 +203,20 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
         rm(gt_window, gt_flat, window_rows)
         #gc(verbose = FALSE)
       }
-      contig_results <- rbindlist(results_list[!sapply(results_list, is.null)])
+      contig_results <- data.table::rbindlist(results_list[!sapply(results_list, is.null)])
       pop_results[[length(pop_results) + 1]] <- contig_results
       
       # Clear contig data
       rm(contig_data)
       #gc(verbose = FALSE)
     }
-    all_results[[pop]] <- rbindlist(pop_results)
+    all_results[[pop]] <- data.table::rbindlist(pop_results)
     # Clear population data
     rm(gt_matrix_pop, df, results_list)
     gc(verbose = FALSE)
   }
   
-  final_output <- rbindlist(all_results)
+  final_output <- data.table::rbindlist(all_results)
   return(final_output)
 }
 
@@ -267,22 +267,22 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
 #'
 #' @export
 summarize_geno <- function(geno_table){
-  summary_df <- geno_table %>% group_by(Pop) %>% summarise(
+  summary_df <- geno_table |> dplyr::group_by(Pop) |> dplyr::summarise(
     # weighted mean and sd of expected heterozygosity
-    wMean.Exp.Het = matrixStats::weighted.mean(Exp.Het, N_sites, na.rm = TRUE),
+    wMean.Exp.Het = stats::weighted.mean(Exp.Het, N_sites, na.rm = TRUE),
     wSD.Exp.Het = matrixStats::weightedSd(Exp.Het, N_sites, na.rm = TRUE),
     # weighted mean and sd of observed heterozygosity
-    wMean.Obs.Het = matrixStats::weighted.mean(Obs.Het, N_sites, na.rm = TRUE),
+    wMean.Obs.Het = stats::weighted.mean(Obs.Het, N_sites, na.rm = TRUE),
     wSD.Obs.Het = matrixStats::weightedSd(Obs.Het, N_sites, na.rm = TRUE),
     # weighted mean and sd of expected male ref. allele genotype
-    wMean.Exp.M.Ref = matrixStats::weighted.mean(Exp.M.Ref, N_sites, na.rm = TRUE),
+    wMean.Exp.M.Ref = stats::weighted.mean(Exp.M.Ref, N_sites, na.rm = TRUE),
     wSD.Exp.M.Ref = matrixStats::weightedSd(Exp.M.Ref, N_sites, na.rm = TRUE),
     # weighted mean and sd of observed male ref. allele genotype
-    wMean.Obs.M.Ref = matrixStats::weighted.mean(Obs.M.Ref, N_sites, na.rm = TRUE),
+    wMean.Obs.M.Ref = stats::weighted.mean(Obs.M.Ref, N_sites, na.rm = TRUE),
     wSD.Obs.M.Ref = matrixStats::weightedSd(Obs.M.Ref, N_sites, na.rm = TRUE)
   )
   return(summary_df)
-  # summary_df %>% summarise(Mean = mean(wMean.Exp.Het), SD = sd(wMean.Exp.Het))
+  # summary_df |> dplyr::summarise(Mean = mean(wMean.Exp.Het), SD = sd(wMean.Exp.Het))
 }
 
 

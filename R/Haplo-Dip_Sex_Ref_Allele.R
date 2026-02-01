@@ -73,7 +73,7 @@ compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions
     pops_samples <- pop.file$ID[pop.file$Pop == pop]
     gt_matrix_pop <- geno.data[, pops_samples, drop = FALSE]
     
-    df <- data.table(
+    df <- data.table::data.table(
       contig = contigs, 
       pos = positions, 
       gt_matrix_pop
@@ -90,7 +90,7 @@ compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions
       contig_data <- df[contig == contig_name]
       
       # Sort by genomic position
-      setorder(contig_data, pos)
+      data.table::setorder(contig_data, pos)
       
       # Define window start and end
       contig_start <- min(contig_data$pos)
@@ -137,7 +137,7 @@ compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions
         T.A <- (2*AA.f + Aa.f + A.m) / (N.F * 2 + N.M) # both sexes (total)
         
         # save values here
-        results_window <- data.table(
+        results_window <- data.table::data.table(
           Pop = pop, # which population
           Contig = contig_name, # which contig
           Window_starts = start_pos, # starting position of window
@@ -154,20 +154,20 @@ compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions
         rm(gt_window, gt_flat, window_rows)
         #gc(verbose = FALSE)
       }
-      contig_results <- rbindlist(results_list[!sapply(results_list, is.null)])
+      contig_results <- data.table::rbindlist(results_list[!sapply(results_list, is.null)])
       pop_results[[length(pop_results) + 1]] <- contig_results
       
       # Clear contig data
       rm(contig_data)
       #gc(verbose = FALSE)
     }
-    all_results[[pop]] <- rbindlist(pop_results)
+    all_results[[pop]] <- data.table::rbindlist(pop_results)
     # Clear population data
     rm(gt_matrix_pop, df, results_list)
     gc(verbose = FALSE)
   }
   
-  final_output <- rbindlist(all_results)
+  final_output <- data.table::rbindlist(all_results)
   return(final_output)
 }
 
@@ -213,15 +213,15 @@ compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions
 #'
 #' @export
 summarize_sex_ref <- function(allele_table) {
-  summary_df <- allele_table %>% group_by(Pop) %>% summarise(
+  summary_df <- allele_table |> dplyr::group_by(Pop) |> dplyr::summarise(
   # females
-  wMean.F.Ref = matrixStats::weighted.mean(Females.freq, N_sites, na.rm = TRUE),
+  wMean.F.Ref = stats::weighted.mean(Females.freq, N_sites, na.rm = TRUE),
   wSD.F.Ref = matrixStats::weightedSd(Females.freq, N_sites, na.rm =TRUE),
   # males
-  wMean.M.Ref = matrixStats::weighted.mean(Males.freq, N_sites, na.rm = TRUE),
+  wMean.M.Ref = stats::weighted.mean(Males.freq, N_sites, na.rm = TRUE),
   wSD.M.Ref = matrixStats::weightedSd(Males.freq, N_sites, na.rm =TRUE),
   # both sexes
-  wMean.T.Ref = matrixStats::weighted.mean(Total.freq, N_sites, na.rm = TRUE),
+  wMean.T.Ref = stats::weighted.mean(Total.freq, N_sites, na.rm = TRUE),
   wSD.T.Ref = matrixStats::weightedSd(Total.freq, N_sites, na.rm =TRUE)
   )
   return(summary_df)

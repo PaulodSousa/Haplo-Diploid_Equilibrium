@@ -70,7 +70,7 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
     pops_samples <- pop.file$ID[pop.file$Pop == pop]
     gt_matrix_pop <- geno.data[, pops_samples, drop = FALSE]
     
-    df <- data.table(
+    df <- data.table::data.table(
       contig = contigs, 
       pos = positions, 
       gt_matrix_pop
@@ -87,7 +87,7 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
       contig_data <- df[contig == contig_name]
       
       # Sort by genomic position
-      setorder(contig_data, pos)
+      data.table::setorder(contig_data, pos)
       
       # Define window start and end
       contig_start <- min(contig_data$pos)
@@ -136,7 +136,7 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
         H <- 2* F.A * F.a
         
         # save values here
-        results_window <- data.table(
+        results_window <- data.table::data.table(
           Pop = pop, # which population
           Contig = contig_name, # which contig
           Window_starts = start_pos, # starting position of window
@@ -151,20 +151,20 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
         rm(gt_window, gt_flat, window_rows)
         #gc(verbose = FALSE)
       }
-      contig_results <- rbindlist(results_list[!sapply(results_list, is.null)])
+      contig_results <- data.table::rbindlist(results_list[!sapply(results_list, is.null)])
       pop_results[[length(pop_results) + 1]] <- contig_results
       
       # Clear contig data
       rm(contig_data)
       gc(verbose = FALSE)
     }
-    all_results[[pop]] <- rbindlist(pop_results)
+    all_results[[pop]] <- data.table::rbindlist(pop_results)
     # Clear population data
     rm(gt_matrix_pop, df, results_list)
     gc(verbose = FALSE)
   }
   
-  final_output <- rbindlist(all_results)
+  final_output <- data.table::rbindlist(all_results)
   return(final_output)
 }
 
@@ -198,9 +198,9 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
 #'
 #' @export
 summarize_NeisH <- function(neis_table) {
-  summary_df <- neis_table %>% group_by(Pop) %>% summarise(
+  summary_df <- neis_table |> dplyr::group_by(Pop) |> dplyr::summarise(
   # weighted mean and sd of genetic diversity
-  wMean.Neis_H = matrixStats::weighted.mean(Neis_H, N_sites, na.rm = TRUE),
+  wMean.Neis_H = stats::weighted.mean(Neis_H, N_sites, na.rm = TRUE),
   wSD.Neis_H = matrixStats::weightedSd(Neis_H, N_sites, na.rm = TRUE)
   )
   return(summary_df)

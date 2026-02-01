@@ -70,7 +70,7 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
     pops_samples <- pop.file$ID[pop.file$Pop == pop]
     gt_matrix_pop <- geno.data[, pops_samples, drop = FALSE]
     
-    df <- data.table(
+    df <- data.table::data.table(
       contig = contigs, 
       pos = positions, 
       gt_matrix_pop
@@ -87,7 +87,7 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
       contig_data <- df[contig == contig_name]
       
       # Sort by genomic position
-      setorder(contig_data, pos)
+      data.table::setorder(contig_data, pos)
       
       # Define window start and end
       contig_start <- min(contig_data$pos)
@@ -132,7 +132,7 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
         F.A <- (2*AA.f + Aa.f + A.m) / (N.F * 2 + N.M)
         F.a <- (2*aa.f + Aa.f + a.m) / (N.F * 2 + N.M)
         
-        results_window <- data.table(
+        results_window <- data.table::data.table(
           Pop = pop, # which population
           Contig = contig_name, # which contig
           Window_starts = start_pos, # starting position of window
@@ -148,20 +148,20 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
         rm(gt_window, gt_flat, window_rows)
         #gc(verbose = FALSE)
       }
-      contig_results <- rbindlist(results_list[!sapply(results_list, is.null)])
+      contig_results <- data.table::rbindlist(results_list[!sapply(results_list, is.null)])
       pop_results[[length(pop_results) + 1]] <- contig_results
       
       # Clear contig data
       rm(contig_data)
       #gc(verbose = FALSE)
     }
-    all_results[[pop]] <- rbindlist(pop_results)
+    all_results[[pop]] <- data.table::rbindlist(pop_results)
     # Clear population data
     rm(gt_matrix_pop, df, results_list)
     gc(verbose = FALSE)
   }
   
-  final_output <- rbindlist(all_results)
+  final_output <- data.table::rbindlist(all_results)
   return(final_output)
   
 }
@@ -216,10 +216,10 @@ pairwise.fst <- function(allele.freq.table) {
   # 1st section:  identified all possible population pairs
   pop.list <- unique(allele.freq.table$Pop)
   # generate all unique pairwise combinations as a matrix (2 rows, n columns)
-  pairs <- combn(pop.list, 2)
+  pairs <- utils::combn(pop.list, 2)
   
   # convert to data.table with two columns
-  pop.pairs <- data.table(
+  pop.pairs <- data.table::data.table(
     Pop1 = pairs[1, ],
     Pop2 = pairs[2, ]
   )
@@ -232,21 +232,21 @@ pairwise.fst <- function(allele.freq.table) {
     cat("Processing population pair:", pops$Pop1, "-", pops$Pop2, "\n")
     
     # subset data for desired populations
-    allele.freqs_pop <- allele.freq.table %>% filter(Pop %in% c(pops))
+    allele.freqs_pop <- allele.freq.table |> dplyr::filter(Pop %in% c(pops))
     
     allele.freqs_pop$window_lims <- paste0(allele.freqs_pop$Window_starts, " - ", allele.freqs_pop$Window_ends)
     # calculate A allele mean and variance by contig and window
-    Fst.by.window <- allele.freqs_pop %>%
-      group_by(Contig, window_lims) %>% # group by contig and window
-      summarise(
+    Fst.by.window <- allele.freqs_pop |>
+      dplyr::group_by(Contig, window_lims) |> # group by contig and window
+      dplyr::summarise(
         Sum.Sites = sum(N_sites), # number of sites across the same window of both populations
         Mean.p = mean(Freq.A), # mean frequency of A allele
         Var.p = mean((Freq.A - mean(Freq.A))^2), # # population variance in frequency of the A allele
         .groups = "drop"
       )
     # calculate Fst by contig and window
-    Fst.by.window <- Fst.by.window %>%
-      mutate(Fst = ifelse(Mean.p == 0 | Mean.p == 1, 0, Var.p / (Mean.p * (1 - Mean.p))))
+    Fst.by.window <- Fst.by.window |>
+      dplyr::mutate(Fst = ifelse(Mean.p == 0 | Mean.p == 1, 0, Var.p / (Mean.p * (1 - Mean.p))))
     
     
     Fst.by.window$Pop_pair <- paste0(pops[1], " - ", pops[2])
@@ -258,7 +258,7 @@ pairwise.fst <- function(allele.freq.table) {
     gc(verbose = FALSE)
   }
   
-  fst_table <- rbindlist(results)
+  fst_table <- data.table::rbindlist(results)
   return(fst_table)
 }
 
@@ -291,9 +291,9 @@ pairwise.fst <- function(allele.freq.table) {
 #'
 #' @export
 summarize_fst <- function(fst_table) {
-  summary_fst <- fst_table %>% group_by(Pop_pair) %>% summarise(
+  summary_fst <- fst_table |> dplyr::group_by(Pop_pair) |> dplyr::summarise(
   # weighted mean and sd of genetic diversity
-  wMean.Fst = matrixStats::weighted.mean(Fst, Sum.Sites, na.rm = TRUE),
+  wMean.Fst = stats::weighted.mean(Fst, Sum.Sites, na.rm = TRUE),
   wSD.Fst = matrixStats::weightedSd(Fst, Sum.Sites, na.rm =TRUE),
   )  
 }
