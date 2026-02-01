@@ -22,7 +22,13 @@
 #'
 #' @examples
 #' # Path to a VCF shipped with the package (adjust to your own file)
-#' vcf_path <- system.file("extdata", "example.vcf", package = "HaploDip")
+#' vcf_path <- system.file(
+#'   "extdata", "example.vcf",
+#'   package = "HaploDiploidEquilibrium"
+#' )
+#' if (nzchar(vcf_path)) {
+#'   vcf2GT(vcf_path)
+#' }
 #' result <- vcf2GT(vcf_path)
 #'
 #' contigs    <- result$contig_vector
@@ -34,6 +40,9 @@
 #'
 #' @export
 vcf2GT <- function(path_to_vcf) {
+  if (!length(path_to_vcf) || !nzchar(path_to_vcf) || !file.exists(path_to_vcf)) {
+    stop("VCF file not found", call. = FALSE)
+  }
   vcf <- vcfR::read.vcfR(path_to_vcf)
   contig_vector <- vcf@fix[, "CHROM"]
   positions <- as.numeric(vcf@fix[, "POS"])
