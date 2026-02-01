@@ -4,9 +4,9 @@ library(data.table)
 library(vcfR)
 ## Fst
 
-setwd("/home/paulos/PhD/Haplo-Dip_Model/")
+setwd("/home/francisco/Software/HaploDiploidEquilibrium/")
 # Import vcf
-vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_3pops_7indvs.vcf")
+vcf <- read.vcfR("Fake_data/Caenea_FAKE_2contigs_2pops_5indvs.vcf")
 # get only the gen# get only the genotypes from vcf file
 gt_matrix <- extract.gt(vcf, element = "GT", as.numeric = F)
 head(gt_matrix)
