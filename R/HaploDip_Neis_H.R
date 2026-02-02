@@ -2,12 +2,14 @@
 #'
 #' Iterates over each population defined in \code{pop.file}, splits the
 #' genotype data by contig, and slides a fixed-size window along each contig
-#' to compute Nei's H (expected heterozygosity under random mating) within
+#' to compute Nei's H (probability of sampling two different alleles) within
 #' that window. Nei's H is calculated as \code{2pq}, where \code{p} and
 #' \code{q} are the reference and alternative allele frequencies respectively.
 #' Both diploid genotypes (\code{"0/0"}, \code{"0/1"}, \code{"1/1"}) and
 #' haploid genotypes (\code{"0"}, \code{"1"}) are recognised when computing
-#' allele frequencies, making the calculation agnostic to ploidy.
+#' allele frequencies. Despite the different ploidies, allele frequencies
+#' should be the same between sexes, which means that Nei's H 
+#' is agnostic to ploidy. 
 #'
 #' @param geno.data A character matrix of genotype strings with dimensions
 #'   \code{n_sites x n_individuals}, as returned by [vcf2GT()].
