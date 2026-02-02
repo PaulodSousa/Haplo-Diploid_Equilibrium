@@ -12,6 +12,23 @@
 #' \code{1 - (Obs.Het / Exp.Het)} and is set to \code{NA} when expected
 #' heterozygosity is zero.
 #'
+#' Haplo-diploid equilibrium model assumes a equal sex-ratio for three main reasons:
+#' 1: A sex-ratio different from 1:1 (e.g. 1:2) would break the assumptions of equal 
+#' probability of contributing to next generation (selection and even drift)
+#' 2: Population sex-ratio is not sample sex-ratio. Sample sex-ratio might be different 
+#' from population's sex-ratio due to time of the year when sampling took place, flower resources, etc.  
+#' 3: Sex-ratio might be different from didderent populations, across time and evolving. So its
+#' estimation for one population might not hold for another or the same in the next breeding season
+#'
+#' For the above mentioned reasons, we highly recomend that the sex-ratio 
+#' is left has 0.5 (1:1) unless strong evidence existis of otherwise. 
+#' A true sex-ratio different from 1:1 (assumed) should also be considered 
+#' to explain the possible differences between observed and expected genotype
+#' frequencies. In other words, sex-ratio different from 1:1 should 
+#' change the genotype frequencies but not the allele frequencies.
+#'
+#' Fis might not be reliable when the number of sampled diploids is to low
+#'
 #' @param geno.data A character matrix of genotype strings with dimensions
 #'   \code{n_sites x n_individuals}, as returned by [vcf2GT()].
 #' @param pop.file A \code{data.frame} or \code{data.table} with at least two
