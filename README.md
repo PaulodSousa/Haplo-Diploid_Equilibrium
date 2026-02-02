@@ -12,7 +12,6 @@ HaploDip_GenoFreq.R > script to calculate genotype frequencies and Fis (not agno
 Fst_HapDip.R > script to calculate Fst from allele frequency data (agnostic to ploidy) \
 Haplo-Dip_Sex_Ref_Allele.R > script to calculate the frequency of the reference allele (0) in each sex across populations (agnostic to ploidy) \  
 HaploDip_Neis_H.R > script to calculate Nei's H, a geentic diversity metric (agnostic to ploidy) \
-Watternson_Theta.R > script to calculate Watterson's Theta (agnostic to ploidy) 
 
 
 
