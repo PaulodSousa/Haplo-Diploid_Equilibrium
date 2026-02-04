@@ -1,8 +1,20 @@
 [![R-CMD-check](https://github.com/PaulodSousa/Haplo-Diploid_Equilibrium/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/PaulodSousa/Haplo-Diploid_Equilibrium/actions/workflows/R-CMD-check.yaml)
 
 # Haplo-Diploid Equilibrium
+
+Currently there are no user-friendly software that can hadle mixed-ploidy datasets for haplo-diploid animals (e.g. ants, bees, wasps) aiming to compute basic population genetic statistics.
+Reserachers working with such animals have either 1) sequenced only females or 2) transform the male genotypes from haploid to diploid.
+These solutions do not come without challenges, focusing only in females is easier when working with social organisms (e.g. honeybees, ants, social wasps) but more difficult when
+working with solitary ones (e.g. 70% of all bee species are solitary). Furthermore neglecting males can hinder the capacity to better understand some questions such as sex-biased
+dispersion. The second solution involves changing the genotype and allele frequencies, biasing any population genetic statistic.
+
+We developed a R framework to compute some population genetic statistics of haploid-diploid data without any data transformation.
+Furthermore we relaxed Hardy-Weinber model in order to accomodate for the differences in ploidy in the population and the the particular reproductive cycle of haplo-diploids
+(diploids mate with haploids to produce other diploids but produce haploids through asexual reproduction). 
+
+
 This repository contains:
-1. R scripts to estimate pop. gen. summary statistics from haplo-diploid systems (Script_folder)
+1. R scripts to estimate population genenetic summary statistics from haplo-diploid systems (Script_folder)
 2. Fake data (.vcf and .txt) to test scripts (Fake_data)
 3. A theoretical explanation of the model (see below)
 

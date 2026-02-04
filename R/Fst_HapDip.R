@@ -4,7 +4,7 @@
 #' genotype data by contig, and slides a fixed-size window along each contig to
 #' compute the reference allele frequency within that window. Both diploid
 #' genotypes (\code{"0/0"}, \code{"0/1"}, \code{"1/1"}) and haploid genotypes
-#' (\code{"0"}, \code{"1"}) are recognised, making the calculation agnostic to
+#' (\code{"0"}, \code{"1"}) are recognised. Allele frequency is agnostic to
 #' ploidy. The resulting per-window frequencies are the direct input expected
 #' by [pairwise.fst()].
 #'
@@ -170,7 +170,7 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
 #' Compute pairwise Fst for all population pairs
 #'
 #' Takes the per-window allele frequency table produced by [allele.freq.WS()]
-#' and computes Hudson's Fst for every unique pair of populations. Within each
+#' and computes Wright's Fst for every unique pair of populations. Within each
 #' contig-window, Fst is estimated as the ratio of the among-population
 #' variance in reference allele frequency to its expected maximum under
 #' panmixia:
