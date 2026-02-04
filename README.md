@@ -9,7 +9,7 @@ working with solitary ones (e.g. 70% of all bee species are solitary). Furthermo
 dispersion. The second solution involves changing the genotype and allele frequencies, biasing any population genetic statistic.
 
 We developed a R framework to compute some population genetic statistics of haploid-diploid data without any data transformation.
-Furthermore we relaxed Hardy-Weinber model in order to accomodate for the differences in ploidy and the the particular reproductive cycle of haplo-diploids (diploids mate with haploids to produce other diploids but produce haploids through asexual reproduction). 
+Furthermore we relaxed Hardy-Weinber model in order to accomodate for the differences in ploidy in the population and the the particular reproductive cycle of haplo-diploids (diploids mate with haploids to produce other diploids but produce haploids through asexual reproduction). 
 
 
 This repository contains:
