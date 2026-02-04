@@ -13,7 +13,7 @@ Furthermore we relaxed Hardy-Weinber model in order to accomodate for the differ
 
 
 This repository contains:
-1. R scripts to estimate pop. gen. summary statistics from haplo-diploid systems (Script_folder)
+1. R scripts to estimate population genenetic summary statistics from haplo-diploid systems (Script_folder)
 2. Fake data (.vcf and .txt) to test scripts (Fake_data)
 3. A theoretical explanation of the model (see below)
 
