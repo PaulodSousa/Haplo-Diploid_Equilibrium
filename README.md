@@ -7,13 +7,12 @@ This repository contains:
 3. A theoretical explanation of the model (see below)
 
 ## List of scripts
-HaploDip_Het_base.R > base script where the bases of the model are written and with some simulations \
-HaploDip_GenoFreq.R > script to calculate genotype frequencies and Fis (not agnostic to ploidy) \
-Fst_HapDip.R > script to calculate Fst from allele frequency data (agnostic to ploidy) \
-Haplo-Dip_Sex_Ref_Allele.R > script to calculate the frequency of the reference allele (0) in each sex across populations (agnostic to ploidy) \  
-HaploDip_Neis_H.R > script to calculate Nei's H, a geentic diversity metric (agnostic to ploidy) \
-Watternson_Theta.R > script to calculate Watterson's Theta (agnostic to ploidy) 
-
+* `R/HaploDip_Het_base.R`: Base script where the bases of the model are written
+* `R/HaploDip_GenoFreq.R`: Functions to calculate genotype frequencies and F<sub>IS</sub> (not agnostic to ploidy)
+* `R/Fst_HapDip.R`: Functions to calculate F<sub>ST</sub> from allele frequency data (agnostic to ploidy)
+* `R/Haplo-Dip_Sex_Ref_Allele.R`: Functions to calculate reference allele frequencies (0) in each sex across populations (agnostic to ploidy)
+* `R/HaploDip_Neis_H.R`: Functions to calculate Nei's H, a geentic diversity metric (agnostic to ploidy)
+* `unfinished/Watternson_Theta.R` > script to calculate Watterson's Theta (agnostic to ploidy) **unfinished**
 
 
 ## Theoretical explanation of the model
