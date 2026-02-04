@@ -24,7 +24,8 @@ This repository contains:
 * `R/Fst_HapDip.R`: Functions to calculate F<sub>ST</sub> from allele frequency data (agnostic to ploidy)
 * `R/Haplo-Dip_Sex_Ref_Allele.R`: Functions to calculate reference allele frequencies (0) in each sex across populations (agnostic to ploidy)
 * `R/HaploDip_Neis_H.R`: Functions to calculate Nei's H, a geentic diversity metric (agnostic to ploidy)
-* `unfinished/Watternson_Theta.R` > script to calculate Watterson's Theta (agnostic to ploidy) **unfinished**
+* `unfinished/Watternson_Theta.R`: script to calculate Watterson's Theta (agnostic to ploidy) **unfinished**
+* `R/helper_functions.R`: Helper function for loading data
 
 
 ## Theoretical explanation of the model
