@@ -43,7 +43,7 @@ This repository contains:
 * sanity check \
 `colnames(gt_matrix) == Pop.File$ID` 
 
-* Calculate Nei's H by population within a adjustable (e.g. 10k bp) window size, within each contig \
+* Calculate Nei's H by population within an adjustable (e.g. 10k bp) window size, within each contig \
 `Neis_h <- compute_Hs_W(geno.data = gt_matrix,
                          pop.file = Pop.File,
                          contigs = contigs,
