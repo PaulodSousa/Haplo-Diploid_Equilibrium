@@ -44,13 +44,14 @@ This repository contains:
 `colnames(gt_matrix) == Pop.File$ID` \
 
 * Calculate Nei's H by population within a adjustable (e.g. 10k bp) window size, within each contig \
-`hs <- compute_Hs_W(geno.data = gt,
-                     pop.file = pop.file,
-                     contigs = contigs,
-                     positions = pos,
-                     window.size = 10000)` \
+`Neis_h <- compute_Hs_W(geno.data = gt,
+                         pop.file = pop.file,
+                         contigs = contigs,
+                         positions = pos,
+                         window.size = 10000)` \
 
-
+* Summarise Nei's H. For each population returns mean and sd, weighted by the number of sites at each window \
+`summary_H_pop <- summarize_NeisH(Neis_h)`
 
 ## Theoretical explanation of the model
 In a haplo-diploid system where one sex is haploid and another diploid (e.g. hymentoptera insects) and assuming
