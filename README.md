@@ -19,7 +19,6 @@ This repository contains:
 3. A theoretical explanation of the model (see below)
 
 ## List of scripts
-* `R/HaploDip_Het_base.R`: Base script where the bases of the model are written
 * `R/HaploDip_GenoFreq.R`: Functions to calculate genotype frequencies and F<sub>IS</sub> (not agnostic to ploidy)
 * `R/Fst_HapDip.R`: Functions to calculate F<sub>ST</sub> from allele frequency data (agnostic to ploidy)
 * `R/Haplo-Dip_Sex_Ref_Allele.R`: Functions to calculate reference allele frequencies (0) in each sex across populations (agnostic to ploidy)
