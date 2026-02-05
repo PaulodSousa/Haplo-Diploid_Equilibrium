@@ -27,6 +27,10 @@ This repository contains:
 * `unfinished/Watternson_Theta.R`: script to calculate Watterson's Theta (agnostic to ploidy) **unfinished**
 * `R/helper_functions.R`: Helper function for loading data
 
+## Running example
+
+
+
 
 ## Theoretical explanation of the model
 In a haplo-diploid system where one sex is haploid and another diploid (e.g. hymentoptera insects) and assuming
