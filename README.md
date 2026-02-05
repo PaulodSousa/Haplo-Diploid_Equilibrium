@@ -28,26 +28,26 @@ This repository contains:
 
 ## Running example (e.g. Nei's H)
 * Import vcf data \
-`vcf.data <- vcf2GT("path/to/input.vcf")` \
+`vcf.data <- vcf2GT("path/to/input.vcf")` 
 * Create matrix with sites as rows and samples as columns \
-`gt_matrix <- vcf.data$gt_matrix` \
+`gt_matrix <- vcf.data$gt_matrix` 
 * contig/scafold/chromosome names \
-`contigs <- vcf.data$contig_vector` \
+`contigs <- vcf.data$contig_vector` 
 * site positions \
-`pos <- vcf.data$positions` \
+`pos <- vcf.data$positions` 
 
 * Import population file with two columns: 1st with sample names (equal to gt_matrix columns) and 2nd with population names. Column names must be ID and Pop \
-`Pop.File <- read.csv("path/to/input.txt")` \
+`Pop.File <- read.csv("path/to/input.txt")` 
 
 * sanity check \
-`colnames(gt_matrix) == Pop.File$ID` \
+`colnames(gt_matrix) == Pop.File$ID` 
 
 * Calculate Nei's H by population within a adjustable (e.g. 10k bp) window size, within each contig \
 `Neis_h <- compute_Hs_W(geno.data = gt,
                          pop.file = pop.file,
                          contigs = contigs,
                          positions = pos,
-                         window.size = 10000)` \
+                         window.size = 10000)` 
 
 * Summarise Nei's H. For each population returns mean and sd, weighted by the number of sites at each window \
 `summary_H_pop <- summarize_NeisH(Neis_h)`
