@@ -28,7 +28,7 @@ This repository contains:
 * `R/helper_functions.R`: Helper function for loading data
 
 ## Running example (e.g. Nei's H)
-Import vcf data 
+* Import vcf data \
 `vcf.data <- vcf2GT("path/to/input.vcf")` \
 Create matrix with sites as rows and samples as columns
 `gt_matrix <- vcf.data$gt_matrix`
