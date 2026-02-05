@@ -17,6 +17,7 @@ This repository contains:
 1. R scripts to estimate population genenetic summary statistics from haplo-diploid systems (Script_folder)
 2. Fake data (.vcf and .txt) to test scripts (Fake_data)
 3. A theoretical explanation of the model (see below)
+   
 
 ## List of scripts
 * `R/HaploDip_GenoFreq.R`: Functions to calculate genotype frequencies and F<sub>IS</sub> (not agnostic to ploidy)
