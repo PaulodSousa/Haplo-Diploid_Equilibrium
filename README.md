@@ -1,4 +1,4 @@
-[![R-CMD-check](https://github.com/PaulodSousa/Haplo-Diploid_Equilibrium/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/PaulodSousa/Haplo-Diploid_Equilibrium/actions/workflows/R-CMD-check.yaml)
+![R-CMD-check](https://github.com/PaulodSousa/Haplo-Diploid_Equilibrium/actions/workflows/R-CMD-check.yaml/badge.svg)]
 
 # Haplo-Diploid Equilibrium
 
