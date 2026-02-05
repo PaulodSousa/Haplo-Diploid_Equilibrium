@@ -17,9 +17,9 @@ This repository contains:
 1. R scripts to estimate population genetic summary statistics from haplo-diploid systems (Script_folder)
 2. Fake data (.vcf and .txt) to test scripts (Fake_data)
 3. A theoretical explanation of the model (see below)
+   
 
 ## List of scripts
-* `R/HaploDip_Het_base.R`: Base script where the bases of the model are written
 * `R/HaploDip_GenoFreq.R`: Functions to calculate genotype frequencies and F<sub>IS</sub> (not agnostic to ploidy)
 * `R/Fst_HapDip.R`: Functions to calculate F<sub>ST</sub> from allele frequency data (agnostic to ploidy)
 * `R/Haplo-Dip_Sex_Ref_Allele.R`: Functions to calculate reference allele frequencies (0) in each sex across populations (agnostic to ploidy)
@@ -27,6 +27,31 @@ This repository contains:
 * `unfinished/Watternson_Theta.R`: script to calculate Watterson's Theta (agnostic to ploidy) **unfinished**
 * `R/helper_functions.R`: Helper function for loading data
 
+## Running example (e.g. Nei's H)
+* Import vcf data \
+`vcf.data <- vcf2GT("path/to/input.vcf")`
+* Create matrix with sites as rows and samples as columns \
+`gt_matrix <- vcf.data$gt_matrix`
+* contig/scafold/chromosome names \
+`contigs <- vcf.data$contig_vector`
+* site positions \
+`pos <- vcf.data$positions`
+
+* Import population file with two columns: 1st with sample names (equal to gt_matrix columns) and 2nd with population names. Column names must be ID and Pop \
+`Pop.File <- read.csv("path/to/input.txt")` 
+
+* sanity check \
+`colnames(gt_matrix) == Pop.File$ID` 
+
+* Calculate Nei's H by population within an adjustable (e.g. 10k bp) window size, within each contig \
+`Neis_h <- compute_Hs_W(geno.data = gt_matrix,
+                         pop.file = Pop.File,
+                         contigs = contigs,
+                         positions = pos,
+                         window.size = 10000)` 
+
+* Summarise Nei's H. For each population returns mean and sd, weighted by the number of sites at each window \
+`summary_H_pop <- summarize_NeisH(Neis_h)`
 
 ## Theoretical explanation of the model
 In a haplo-diploid system where one sex is haploid and another diploid (e.g. hymentoptera insects) and assuming
