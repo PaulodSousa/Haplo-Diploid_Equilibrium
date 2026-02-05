@@ -1,6 +1,6 @@
 Package: HaploDiploidEquilibrium
 Type: Package
-Title: Calculate F statistics Using Mixed Haploid and Fiplod Organism Data
+Title: Calculate F statistics Using Mixed Haploid and Diploid Organism Data
 Version: 0.1.0
 Authors@R: 
     c(person("Paulo", "Sousa",

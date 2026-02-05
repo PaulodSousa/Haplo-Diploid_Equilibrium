@@ -2,19 +2,19 @@
 
 # Haplo-Diploid Equilibrium
 
-Currently there are no user-friendly software that can hadle mixed-ploidy datasets for haplo-diploid animals (e.g. ants, bees, wasps) aiming to compute basic population genetic statistics.
-Reserachers working with such animals have either 1) sequenced only females or 2) transform the male genotypes from haploid to diploid.
+Currently there are no user-friendly software that can handle mixed-ploidy datasets for haplo-diploid animals (e.g. ants, bees, wasps) aiming to compute basic population genetic statistics.
+Researchers working with such animals have either 1) sequenced only females or 2) transform the male genotypes from haploid to diploid.
 These solutions do not come without challenges, focusing only in females is easier when working with social organisms (e.g. honeybees, ants, social wasps) but more difficult when
 working with solitary ones (e.g. 70% of all bee species are solitary). Furthermore neglecting males can hinder the capacity to better understand some questions such as sex-biased
 dispersion. The second solution involves changing the genotype and allele frequencies, biasing any population genetic statistic.
 
 We developed a R framework to compute some population genetic statistics of haploid-diploid data without any data transformation.
-Furthermore we relaxed Hardy-Weinber model in order to accomodate for the differences in ploidy in the population and the the particular reproductive cycle of haplo-diploids
+Furthermore we relaxed Hardy-Weinber model in order to accommodate for the differences in ploidy in the population and the the particular reproductive cycle of haplo-diploids
 (diploids mate with haploids to produce other diploids but produce haploids through asexual reproduction). 
 
 
 This repository contains:
-1. R scripts to estimate population genenetic summary statistics from haplo-diploid systems (Script_folder)
+1. R scripts to estimate population genetic summary statistics from haplo-diploid systems (Script_folder)
 2. Fake data (.vcf and .txt) to test scripts (Fake_data)
 3. A theoretical explanation of the model (see below)
 
@@ -23,7 +23,7 @@ This repository contains:
 * `R/HaploDip_GenoFreq.R`: Functions to calculate genotype frequencies and F<sub>IS</sub> (not agnostic to ploidy)
 * `R/Fst_HapDip.R`: Functions to calculate F<sub>ST</sub> from allele frequency data (agnostic to ploidy)
 * `R/Haplo-Dip_Sex_Ref_Allele.R`: Functions to calculate reference allele frequencies (0) in each sex across populations (agnostic to ploidy)
-* `R/HaploDip_Neis_H.R`: Functions to calculate Nei's H, a geentic diversity metric (agnostic to ploidy)
+* `R/HaploDip_Neis_H.R`: Functions to calculate Nei's H, a genetic diversity metric (agnostic to ploidy)
 * `unfinished/Watternson_Theta.R`: script to calculate Watterson's Theta (agnostic to ploidy) **unfinished**
 * `R/helper_functions.R`: Helper function for loading data
 
@@ -96,7 +96,7 @@ f(a)t+1 = f(aa) + f(Aa)/2 = q²/2 + pq/2 = q/2 x (p + q) = q/2 x (1) = q/2
 | A        |      p/2        |        p/2       |
 | a        |      q/2        |        q/2       |
 
-Since, the genotype frequencies in t+1 are the same as in t0, no evolution as occured.
+Since, the genotype frequencies in t+1 are the same as in t0, no evolution as occurred.
 
 
 ### if inbreeding is present:
@@ -124,14 +124,6 @@ Aa' = 1 - (AA'+ aa' + A' + a') = 1 - [p²/2 + fp(1-p/2) + q²/2 + fq(1-q/2) + p/
 | aa       |      q²/2 + 0       | q |
 | A        |      p/2        | p/2 |
 | a        |      q/2        | q/2 |
-
-
-
-
-
-
-
-
 
 
  
