@@ -6,3 +6,5 @@
 ^\.github$
 ^\.env$
 ^\.Rproj\.user$
+^CRAN-SUBMISSION$
+^cran-comments\.md$
