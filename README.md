@@ -44,10 +44,10 @@ sanity check
 `colnames(gt_matrix) == Pop.File$ID`
 
 Calculate Nei's H by population within a adjustable (e.g. 10k bp) window size, within each contig
-`hs <- compute_Hs_W(geno.data   = gt,
-                     pop.file    = pop.file,
-                     contigs     = contigs,
-                     positions   = pos,
+`hs <- compute_Hs_W(geno.data = gt, \
+                     pop.file = pop.file, \
+                     contigs = contigs, \
+                     positions = pos, \
                      window.size = 10000)`
 
 
