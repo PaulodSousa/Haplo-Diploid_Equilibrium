@@ -28,7 +28,7 @@ This repository contains:
 
 ## Running example (e.g. Nei's H)
 * Import vcf data \
-`vcf.data <- vcf2GT("path/to/input.vcf")` 
+`vcf.data <- vcf2GT("path/to/input.vcf")` Import vcf data
 * Create matrix with sites as rows and samples as columns \
 `gt_matrix <- vcf.data$gt_matrix` 
 * contig/scafold/chromosome names \
@@ -43,8 +43,8 @@ This repository contains:
 `colnames(gt_matrix) == Pop.File$ID` 
 
 * Calculate Nei's H by population within a adjustable (e.g. 10k bp) window size, within each contig \
-`Neis_h <- compute_Hs_W(geno.data = gt,
-                         pop.file = pop.file,
+`Neis_h <- compute_Hs_W(geno.data = gt_matrix,
+                         pop.file = Pop.File,
                          contigs = contigs,
                          positions = pos,
                          window.size = 10000)` 
