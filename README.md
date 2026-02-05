@@ -29,13 +29,13 @@ This repository contains:
 
 ## Running example (e.g. Nei's H)
 Import vcf data
-`vcf.data <- vcf2GT("path/to/input.vcf")` \
-Create matrix with sites as rows and samples as columns 
-`gt_matrix <- vcf.data$gt_matrix`\
-contig/scafold/chromosome names \
-`contigs <- vcf.data$contig_vector`\
-site positions \
-`pos <- vcf.data$positions`\
+`vcf.data <- vcf2GT("path/to/input.vcf")` 
+Create matrix with sites as rows and samples as columns
+`gt_matrix <- vcf.data$gt_matrix`
+contig/scafold/chromosome names
+`contigs <- vcf.data$contig_vector`
+site positions
+`pos <- vcf.data$positions`
 
 Import population file with two columns: 1st with sample names (equal to gt_matrix columns) and 2nd with population names. Column names must be ID and Pop \
 `Pop.File <- read.csv("path/to/input.txt")`
