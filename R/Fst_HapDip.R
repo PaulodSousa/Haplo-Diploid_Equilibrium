@@ -36,20 +36,22 @@
 #'   }
 #'
 #' @examples
-#' # Assuming vcf2GT() has already been run:
-#' # result   <- vcf2GT("path/to/input.vcf")
-#' # gt       <- result$gt_matrix
-#' # contigs  <- result$contig_vector
-#' # pos      <- result$positions
-#' #
-#' # pop.file <- data.frame(ID  = colnames(gt),
-#' #                         Pop = c("PopA","PopA","PopB","PopB"))
-#' #
-#' # af <- allele.freq.WS(geno.data  = gt,
-#' #                       pop.file   = pop.file,
-#' #                       contigs    = contigs,
-#' #                       positions  = pos,
-#' #                       window.size = 10000)
+#' vcf_path <- system.file("extdata",
+#'                         "example.vcf",
+#'                         package = "HaploDiploidEquilibrium")
+#' result   <- vcf2GT(vcf_path)
+#' gt       <- result$gt_matrix
+#' contigs  <- result$contig_vector
+#' pos      <- result$positions
+#' 
+#' pop.file <- data.frame(ID  = colnames(gt),
+#'                        Pop = c("PopA","PopA","PopB","PopB","PopB"))
+#' 
+#' af <- allele.freq.WS(geno.data  = gt,
+#'                      pop.file   = pop.file,
+#'                      contigs    = contigs,
+#'                      positions  = pos,
+#'                      window.size = 10000)
 #'
 #' @seealso [pairwise.fst()] for computing Fst from the output of this
 #'   function.
@@ -83,8 +85,8 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
     # for each contig do
     for(contig_name in unique(df$contig)) {
       cat("  Contig:", contig_name, "\n")
-      
-      contig_data <- df[contig == contig_name]
+
+      contig_data <- subset(df, contig == contig_name)
       
       # Sort by genomic position
       data.table::setorder(contig_data, pos)
@@ -201,9 +203,23 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
 #'   }
 #'
 #' @examples
-#' # Assuming allele.freq.WS() has already been run:
-#' # af  <- allele.freq.WS(...)
-#' # fst <- pairwise.fst(af)
+#' vcf_path <- system.file("extdata",
+#'                         "example.vcf",
+#'                         package = "HaploDiploidEquilibrium")
+#' result   <- vcf2GT(vcf_path)
+#' gt       <- result$gt_matrix
+#' contigs  <- result$contig_vector
+#' pos      <- result$positions
+#' 
+#' pop.file <- data.frame(ID  = colnames(gt),
+#'                        Pop = c("PopA","PopA","PopB","PopB","PopB"))
+#' 
+#' af <- allele.freq.WS(geno.data  = gt,
+#'                      pop.file   = pop.file,
+#'                      contigs    = contigs,
+#'                      positions  = pos,
+#'                      window.size = 10000)
+#' fst <- pairwise.fst(af)
 #'
 #' @seealso [allele.freq.WS()] for computing the input allele frequency table,
 #'   and [summarize_fst()] for computing weighted genome-wide summary

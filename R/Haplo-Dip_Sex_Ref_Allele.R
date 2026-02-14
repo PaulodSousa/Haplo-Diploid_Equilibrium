@@ -40,20 +40,22 @@
 #'   }
 #'
 #' @examples
-#' # Assuming vcf2GT() has already been run:
-#' # result   <- vcf2GT("path/to/input.vcf")
-#' # gt       <- result$gt_matrix
-#' # contigs  <- result$contig_vector
-#' # pos      <- result$positions
-#' #
-#' # pop.file <- data.frame(ID  = colnames(gt),
-#' #                         Pop = c("PopA","PopA","PopB","PopB"))
-#' #
-#' # sex_ref <- compute.Female.Male.allele.W(geno.data   = gt,
-#' #                                         pop.file    = pop.file,
-#' #                                         contigs     = contigs,
-#' #                                         positions   = pos,
-#' #                                         window.size = 10000)
+#' vcf_path <- system.file("extdata",
+#'                         "example.vcf",
+#'                         package = "HaploDiploidEquilibrium")
+#' result <- vcf2GT(vcf_path)
+#' gt       <- result$gt_matrix
+#' contigs  <- result$contig_vector
+#' pos      <- result$positions
+#' 
+#' pop.file <- data.frame(ID  = colnames(gt),
+#'                        Pop = c("PopA","PopA","PopB","PopB","PopB"))
+#' 
+#' sex_ref <- compute.Female.Male.allele.W(geno.data   = gt,
+#'                                         pop.file    = pop.file,
+#'                                         contigs     = contigs,
+#'                                         positions   = pos,
+#'                                         window.size = 10000)
 #'
 #' @seealso [summarize_sex_ref()] for computing weighted genome-wide summary
 #'   statistics from the output.
@@ -87,7 +89,7 @@ compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions
     for(contig_name in unique(df$contig)) {
       cat("  Contig:", contig_name, "\n")
       
-      contig_data <- df[contig == contig_name]
+      contig_data <- subset(df, contig == contig_name)
       
       # Sort by genomic position
       data.table::setorder(contig_data, pos)
@@ -104,7 +106,8 @@ compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions
       for (start_pos in window_starts) {
         end_pos <- start_pos + window.size - 1
         # Get rows in this window
-        window_rows <- contig_data[pos >= start_pos & pos <= end_pos]
+        #window_rows <- contig_data[pos >= start_pos & pos <= end_pos]
+        window_rows <- subset(contig_data, pos >= start_pos & pos <= end_pos)
         
         if (nrow(window_rows) == 0) next  # Skip empty windows
         
@@ -204,9 +207,23 @@ compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions
 #'   }
 #'
 #' @examples
-#' # Assuming compute.Female.Male.allele.W() has already been run:
-#' # sex_ref <- compute.Female.Male.allele.W(...)
-#' # summary <- summarize_sex_ref(sex_ref)
+#' vcf_path <- system.file("extdata",
+#'                         "example.vcf",
+#'                         package = "HaploDiploidEquilibrium")
+#' result <- vcf2GT(vcf_path)
+#' gt       <- result$gt_matrix
+#' contigs  <- result$contig_vector
+#' pos      <- result$positions
+#' 
+#' pop.file <- data.frame(ID  = colnames(gt),
+#'                        Pop = c("PopA","PopA","PopB","PopB","PopB"))
+#' 
+#' sex_ref <- compute.Female.Male.allele.W(geno.data   = gt,
+#'                                         pop.file    = pop.file,
+#'                                         contigs     = contigs,
+#'                                         positions   = pos,
+#'                                         window.size = 10000)
+#' summary <- summarize_sex_ref(sex_ref)
 #'
 #' @seealso [compute.Female.Male.allele.W()] for computing the input
 #'   per-window table.

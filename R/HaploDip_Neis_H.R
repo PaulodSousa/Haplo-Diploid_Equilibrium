@@ -39,20 +39,23 @@
 #'   }
 #'
 #' @examples
-#' # Assuming vcf2GT() has already been run:
-#' # result   <- vcf2GT("path/to/input.vcf")
-#' # gt       <- result$gt_matrix
-#' # contigs  <- result$contig_vector
-#' # pos      <- result$positions
-#' #
-#' # pop.file <- data.frame(ID  = colnames(gt),
-#' #                         Pop = c("PopA","PopA","PopB","PopB"))
-#' #
-#' # hs <- compute_Hs_W(geno.data   = gt,
-#' #                     pop.file    = pop.file,
-#' #                     contigs     = contigs,
-#' #                     positions   = pos,
-#' #                     window.size = 10000)
+#' vcf_path <- system.file("extdata",
+#'                         "example.vcf",
+#'                         package = "HaploDiploidEquilibrium")
+#'
+#' result <- vcf2GT(vcf_path)
+#' gt       <- result$gt_matrix
+#' contigs  <- result$contig_vector
+#' pos      <- result$positions
+#' 
+#' pop.file <- data.frame(ID  = colnames(gt),
+#'                        Pop = c("PopA","PopA","PopB","PopB","PopB"))
+#' 
+#' hs <- compute_Hs_W(geno.data   = gt,
+#'                    pop.file    = pop.file,
+#'                    contigs     = contigs,
+#'                    positions   = pos,
+#'                    window.size = 10000)
 #'
 #' @seealso [summarize_NeisH()] for computing weighted genome-wide summary
 #'   statistics from the output.
@@ -86,7 +89,7 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
     for(contig_name in unique(df$contig)) {
       cat("  Contig:", contig_name, "\n")
       
-      contig_data <- df[contig == contig_name]
+      contig_data <- subset(df, contig == contig_name)
       
       # Sort by genomic position
       data.table::setorder(contig_data, pos)
@@ -103,7 +106,7 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
       for (start_pos in window_starts) {
         end_pos <- start_pos + window.size - 1
         # Get rows in this window
-        window_rows <- contig_data[pos >= start_pos & pos <= end_pos]
+        window_rows <- subset(contig_data, pos >= start_pos & pos <= end_pos)
         
         if (nrow(window_rows) == 0) next  # Skip empty windows
         
@@ -192,9 +195,24 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
 #'   }
 #'
 #' @examples
-#' # Assuming compute_Hs_W() has already been run:
-#' # hs      <- compute_Hs_W(...)
-#' # summary <- summarize_NeisH(hs)
+#' vcf_path <- system.file("extdata",
+#'                         "example.vcf",
+#'                         package = "HaploDiploidEquilibrium")
+#'
+#' result <- vcf2GT(vcf_path)
+#' gt       <- result$gt_matrix
+#' contigs  <- result$contig_vector
+#' pos      <- result$positions
+#' 
+#' pop.file <- data.frame(ID  = colnames(gt),
+#'                        Pop = c("PopA","PopA","PopB","PopB","PopB"))
+#' 
+#' hs <- compute_Hs_W(geno.data   = gt,
+#'                    pop.file    = pop.file,
+#'                    contigs     = contigs,
+#'                    positions   = pos,
+#'                    window.size = 10000)
+#' summary <- summarize_NeisH(hs)
 #'
 #' @seealso [compute_Hs_W()] for computing the input per-window table.
 #'
