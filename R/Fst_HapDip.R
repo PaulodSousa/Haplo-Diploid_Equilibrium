@@ -19,6 +19,7 @@
 #'   physical position (bp) of each variant site, as returned by [vcf2GT()].
 #' @param window.size A single positive integer giving the size of each
 #'   sliding window in base pairs.
+#' @param verbose Logical. If `TRUE` (default), print progress messages.
 #'
 #' @return A [data.table::data.table] with one row per population-contig-window
 #'   combination and the following columns:
@@ -188,6 +189,7 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size,
 #'   [allele.freq.WS()], containing at minimum the columns \code{Pop},
 #'   \code{Contig}, \code{Window_starts}, \code{Window_ends}, \code{N_sites},
 #'   and \code{Freq.A}.
+#' @param verbose Logical. If `TRUE` (default), print progress messages.
 #'
 #' @return A [data.table::data.table] with one row per population-pair-contig-
 #'   window combination and the following columns:

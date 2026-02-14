@@ -19,6 +19,7 @@
 #'   physical position (bp) of each variant site, as returned by [vcf2GT()].
 #' @param window.size A single positive integer giving the size of each
 #'   sliding window in base pairs.
+#' @param verbose Logical. If `TRUE` (default), print progress messages.
 #'
 #' @return A [data.table::data.table] with one row per population-contig-window
 #'   combination and the following columns:
@@ -61,7 +62,7 @@
 #'   statistics from the output.
 #'
 #' @export compute.Female.Male.allele.W
-compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions, window.size, verbose=TRUE) {
+compute.Female.Male.allele.W <- function(geno.data, pop.file, contigs, positions, window.size, verbose = TRUE) {
   
   all_results <- list()
   pops <- unique(pop.file$Pop)

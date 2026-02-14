@@ -45,6 +45,7 @@
 #'   The haploid proportion is set to \code{1 - dip_freq}. A value of
 #'   \code{0.5} corresponds to an equal sex ratio and is recommended for
 #'   standard haplo-diploid systems.
+#' @param verbose Logical. If `TRUE` (default), print progress messages.
 #'
 #' @return A [data.table::data.table] with one row per population-contig-window
 #'   combination and the following columns:
@@ -106,7 +107,7 @@
 #'   statistics from the output.
 #'
 #' @export
-compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, window.size, dip_freq, verbose=TRUE) {
+compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, window.size, dip_freq, verbose = TRUE) {
   
   all_results <- list()
   pops <- unique(pop.file$Pop)
