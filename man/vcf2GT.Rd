@@ -30,20 +30,15 @@ variant site, and its physical position. These are the three inputs required
 by the windowed summary-statistic functions in this package.
 }
 \examples{
-# Path to a VCF shipped with the package (adjust to your own file)
-vcf_path <- system.file(
-  "extdata", "example.vcf",
-  package = "HaploDiploidEquilibrium"
-)
-if (nzchar(vcf_path)) {
-  vcf2GT(vcf_path)
-}
+vcf_path <- system.file("extdata",
+                        "example.vcf",
+                        package = "HaploDiploidEquilibrium")
+
 result <- vcf2GT(vcf_path)
 
-contigs    <- result$contig_vector
-positions  <- result$positions
-gt_matrix  <- result$gt_matrix
-head(gt_matrix)
+head(result$contig_vector)
+head(result$positions)
+head(result$gt_matrix)
 
 }
 \seealso{

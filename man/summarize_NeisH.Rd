@@ -28,9 +28,24 @@ by [compute_Hs_W()]. Weighting by \code{N_sites} ensures that windows with
 more called genotypes contribute more to the estimate.
 }
 \examples{
-# Assuming compute_Hs_W() has already been run:
-# hs      <- compute_Hs_W(...)
-# summary <- summarize_NeisH(hs)
+vcf_path <- system.file("extdata",
+                        "example.vcf",
+                        package = "HaploDiploidEquilibrium")
+
+result <- vcf2GT(vcf_path)
+gt       <- result$gt_matrix
+contigs  <- result$contig_vector
+pos      <- result$positions
+
+pop.file <- data.frame(ID  = colnames(gt),
+                       Pop = c("PopA","PopA","PopB","PopB","PopB"))
+
+hs <- compute_Hs_W(geno.data   = gt,
+                   pop.file    = pop.file,
+                   contigs     = contigs,
+                   positions   = pos,
+                   window.size = 10000)
+summary <- summarize_NeisH(hs)
 
 }
 \seealso{

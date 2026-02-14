@@ -4,13 +4,15 @@
 \alias{pairwise.fst}
 \title{Compute pairwise Fst for all population pairs}
 \usage{
-pairwise.fst(allele.freq.table)
+pairwise.fst(allele.freq.table, verbose = TRUE)
 }
 \arguments{
 \item{allele.freq.table}{A [data.table::data.table] produced by
 [allele.freq.WS()], containing at minimum the columns \code{Pop},
 \code{Contig}, \code{Window_starts}, \code{Window_ends}, \code{N_sites},
 and \code{Freq.A}.}
+
+\item{verbose}{Logical. If `TRUE` (default), print progress messages.}
 }
 \value{
 A [data.table::data.table] with one row per population-pair-contig-
@@ -32,7 +34,7 @@ A [data.table::data.table] with one row per population-pair-contig-
 }
 \description{
 Takes the per-window allele frequency table produced by [allele.freq.WS()]
-and computes Hudson's Fst for every unique pair of populations. Within each
+and computes Wright's Fst for every unique pair of populations. Within each
 contig-window, Fst is estimated as the ratio of the among-population
 variance in reference allele frequency to its expected maximum under
 panmixia:
@@ -41,9 +43,23 @@ Windows in which the mean reference allele frequency is 0 or 1 (i.e.
 monomorphic across the pair) are set to 0.
 }
 \examples{
-# Assuming allele.freq.WS() has already been run:
-# af  <- allele.freq.WS(...)
-# fst <- pairwise.fst(af)
+vcf_path <- system.file("extdata",
+                        "example.vcf",
+                        package = "HaploDiploidEquilibrium")
+result   <- vcf2GT(vcf_path)
+gt       <- result$gt_matrix
+contigs  <- result$contig_vector
+pos      <- result$positions
+
+pop.file <- data.frame(ID  = colnames(gt),
+                       Pop = c("PopA","PopA","PopB","PopB","PopB"))
+
+af <- allele.freq.WS(geno.data  = gt,
+                     pop.file   = pop.file,
+                     contigs    = contigs,
+                     positions  = pos,
+                     window.size = 10000)
+fst <- pairwise.fst(af)
 
 }
 \seealso{

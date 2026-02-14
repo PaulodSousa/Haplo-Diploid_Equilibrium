@@ -44,9 +44,25 @@ per-window table produced by [compute_allele.freqs_W()]. Weighting by
 more to each estimate.
 }
 \examples{
-# Assuming compute_allele.freqs_W() has already been run:
-# geno    <- compute_allele.freqs_W(...)
-# summary <- summarize_geno(geno)
+vcf_path <- system.file("extdata",
+                        "example.vcf",
+                        package = "HaploDiploidEquilibrium")
+
+result <- vcf2GT(vcf_path)
+gt       <- result$gt_matrix
+contigs  <- result$contig_vector
+pos      <- result$positions
+
+pop.file <- data.frame(ID  = colnames(gt),
+                       Pop = c("PopA","PopA","PopB","PopB","PopB"))
+
+geno <- compute_allele.freqs_W(geno.data   = gt,
+                               pop.file    = pop.file,
+                               contigs     = contigs,
+                               positions   = pos,
+                               window.size = 10000,
+                               dip_freq    = 0.5)
+summary <- summarize_geno(geno)
 
 }
 \seealso{

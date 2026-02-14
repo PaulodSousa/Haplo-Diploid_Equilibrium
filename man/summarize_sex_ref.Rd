@@ -39,9 +39,23 @@ by [compute.Female.Male.allele.W()]. Weighting by \code{N_sites} ensures
 that windows with more called genotypes contribute more to each estimate.
 }
 \examples{
-# Assuming compute.Female.Male.allele.W() has already been run:
-# sex_ref <- compute.Female.Male.allele.W(...)
-# summary <- summarize_sex_ref(sex_ref)
+vcf_path <- system.file("extdata",
+                        "example.vcf",
+                        package = "HaploDiploidEquilibrium")
+result <- vcf2GT(vcf_path)
+gt       <- result$gt_matrix
+contigs  <- result$contig_vector
+pos      <- result$positions
+
+pop.file <- data.frame(ID  = colnames(gt),
+                       Pop = c("PopA","PopA","PopB","PopB","PopB"))
+
+sex_ref <- compute.Female.Male.allele.W(geno.data   = gt,
+                                        pop.file    = pop.file,
+                                        contigs     = contigs,
+                                        positions   = pos,
+                                        window.size = 10000)
+summary <- summarize_sex_ref(sex_ref)
 
 }
 \seealso{

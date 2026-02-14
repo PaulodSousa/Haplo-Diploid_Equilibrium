@@ -4,7 +4,14 @@
 \alias{allele.freq.WS}
 \title{Compute per-window reference allele frequencies across populations}
 \usage{
-allele.freq.WS(geno.data, pop.file, contigs, positions, window.size)
+allele.freq.WS(
+  geno.data,
+  pop.file,
+  contigs,
+  positions,
+  window.size,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{geno.data}{A character matrix of genotype strings with dimensions
@@ -22,6 +29,8 @@ physical position (bp) of each variant site, as returned by [vcf2GT()].}
 
 \item{window.size}{A single positive integer giving the size of each
 sliding window in base pairs.}
+
+\item{verbose}{Logical. If `TRUE` (default), print progress messages.}
 }
 \value{
 A [data.table::data.table] with one row per population-contig-window
@@ -44,25 +53,27 @@ Iterates over each population defined in \code{pop.file}, splits the
 genotype data by contig, and slides a fixed-size window along each contig to
 compute the reference allele frequency within that window. Both diploid
 genotypes (\code{"0/0"}, \code{"0/1"}, \code{"1/1"}) and haploid genotypes
-(\code{"0"}, \code{"1"}) are recognised, making the calculation agnostic to
+(\code{"0"}, \code{"1"}) are recognised. Allele frequency is agnostic to
 ploidy. The resulting per-window frequencies are the direct input expected
 by [pairwise.fst()].
 }
 \examples{
-# Assuming vcf2GT() has already been run:
-# result   <- vcf2GT("path/to/input.vcf")
-# gt       <- result$gt_matrix
-# contigs  <- result$contig_vector
-# pos      <- result$positions
-#
-# pop.file <- data.frame(ID  = colnames(gt),
-#                         Pop = c("PopA","PopA","PopB","PopB"))
-#
-# af <- allele.freq.WS(geno.data  = gt,
-#                       pop.file   = pop.file,
-#                       contigs    = contigs,
-#                       positions  = pos,
-#                       window.size = 10000)
+vcf_path <- system.file("extdata",
+                        "example.vcf",
+                        package = "HaploDiploidEquilibrium")
+result   <- vcf2GT(vcf_path)
+gt       <- result$gt_matrix
+contigs  <- result$contig_vector
+pos      <- result$positions
+
+pop.file <- data.frame(ID  = colnames(gt),
+                       Pop = c("PopA","PopA","PopB","PopB","PopB"))
+
+af <- allele.freq.WS(geno.data  = gt,
+                     pop.file   = pop.file,
+                     contigs    = contigs,
+                     positions  = pos,
+                     window.size = 10000)
 
 }
 \seealso{

@@ -4,7 +4,14 @@
 \alias{compute.Female.Male.allele.W}
 \title{Compute per-window reference allele frequencies by sex}
 \usage{
-\method{compute}{Female.Male.allele.W}(geno.data, pop.file, contigs, positions, window.size)
+compute.Female.Male.allele.W(
+  geno.data,
+  pop.file,
+  contigs,
+  positions,
+  window.size,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{geno.data}{A character matrix of genotype strings with dimensions
@@ -22,6 +29,8 @@ physical position (bp) of each variant site, as returned by [vcf2GT()].}
 
 \item{window.size}{A single positive integer giving the size of each
 sliding window in base pairs.}
+
+\item{verbose}{Logical. If `TRUE` (default), print progress messages.}
 }
 \value{
 A [data.table::data.table] with one row per population-contig-window
@@ -53,20 +62,22 @@ inferred from ploidy: diploid genotypes (\code{"0/0"}, \code{"0/1"},
 (\code{"0"}, \code{"1"}) to males.
 }
 \examples{
-# Assuming vcf2GT() has already been run:
-# result   <- vcf2GT("path/to/input.vcf")
-# gt       <- result$gt_matrix
-# contigs  <- result$contig_vector
-# pos      <- result$positions
-#
-# pop.file <- data.frame(ID  = colnames(gt),
-#                         Pop = c("PopA","PopA","PopB","PopB"))
-#
-# sex_ref <- compute.Female.Male.allele.W(geno.data   = gt,
-#                                         pop.file    = pop.file,
-#                                         contigs     = contigs,
-#                                         positions   = pos,
-#                                         window.size = 10000)
+vcf_path <- system.file("extdata",
+                        "example.vcf",
+                        package = "HaploDiploidEquilibrium")
+result <- vcf2GT(vcf_path)
+gt       <- result$gt_matrix
+contigs  <- result$contig_vector
+pos      <- result$positions
+
+pop.file <- data.frame(ID  = colnames(gt),
+                       Pop = c("PopA","PopA","PopB","PopB","PopB"))
+
+sex_ref <- compute.Female.Male.allele.W(geno.data   = gt,
+                                        pop.file    = pop.file,
+                                        contigs     = contigs,
+                                        positions   = pos,
+                                        window.size = 10000)
 
 }
 \seealso{

@@ -10,7 +10,8 @@ compute_allele.freqs_W(
   contigs,
   positions,
   window.size,
-  dip_freq
+  dip_freq,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ giving the expected proportion of diploid individuals in the population.
 The haploid proportion is set to \code{1 - dip_freq}. A value of
 \code{0.5} corresponds to an equal sex ratio and is recommended for
 standard haplo-diploid systems.}
+
+\item{verbose}{Logical. If `TRUE` (default), print progress messages.}
 }
 \value{
 A [data.table::data.table] with one row per population-contig-window
@@ -86,22 +89,43 @@ and haploid genotypes (\code{"0"}, \code{"1"}) to males. Fis is computed as
 \code{1 - (Obs.Het / Exp.Het)} and is set to \code{NA} when expected
 heterozygosity is zero.
 }
+\details{
+Haplo-diploid equilibrium model assumes a equal sex-ratio for three main reasons:
+1: A sex-ratio different from 1:1 (e.g. 1:2) would break the assumptions of equal 
+probability of contributing to next generation (selection and even drift)
+2: Population sex-ratio is not sample sex-ratio. Sample sex-ratio might be different 
+from population's sex-ratio due to time of the year when sampling took place, flower resources, etc.  
+3: Sex-ratio might be different from didderent populations, across time and evolving. So its
+estimation for one population might not hold for another or the same in the next breeding season
+
+For the above mentioned reasons, we highly recomend that the sex-ratio 
+is left has 0.5 (1:1) unless strong evidence existis of otherwise. 
+A true sex-ratio different from 1:1 (assumed) should also be considered 
+to explain the possible differences between observed and expected genotype
+frequencies. In other words, sex-ratio different from 1:1 should 
+change the genotype frequencies but not the allele frequencies.
+
+Fis might not be reliable when the number of sampled diploids is to low
+}
 \examples{
-# Assuming vcf2GT() has already been run:
-# result   <- vcf2GT("path/to/input.vcf")
-# gt       <- result$gt_matrix
-# contigs  <- result$contig_vector
-# pos      <- result$positions
-#
-# pop.file <- data.frame(ID  = colnames(gt),
-#                         Pop = c("PopA","PopA","PopB","PopB"))
-#
-# geno <- compute_allele.freqs_W(geno.data   = gt,
-#                                pop.file    = pop.file,
-#                                contigs     = contigs,
-#                                positions   = pos,
-#                                window.size = 10000,
-#                                dip_freq    = 0.5)
+vcf_path <- system.file("extdata",
+                        "example.vcf",
+                        package = "HaploDiploidEquilibrium")
+
+result <- vcf2GT(vcf_path)
+gt       <- result$gt_matrix
+contigs  <- result$contig_vector
+pos      <- result$positions
+
+pop.file <- data.frame(ID  = colnames(gt),
+                       Pop = c("PopA","PopA","PopB","PopB","PopB"))
+
+geno <- compute_allele.freqs_W(geno.data   = gt,
+                               pop.file    = pop.file,
+                               contigs     = contigs,
+                               positions   = pos,
+                               window.size = 10000,
+                               dip_freq    = 0.5)
 
 }
 \seealso{

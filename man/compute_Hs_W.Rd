@@ -4,7 +4,14 @@
 \alias{compute_Hs_W}
 \title{Compute per-window Nei's H (gene diversity)}
 \usage{
-compute_Hs_W(geno.data, pop.file, contigs, positions, window.size)
+compute_Hs_W(
+  geno.data,
+  pop.file,
+  contigs,
+  positions,
+  window.size,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{geno.data}{A character matrix of genotype strings with dimensions
@@ -21,7 +28,9 @@ contig (chromosome) name for each variant site, as returned by [vcf2GT()].}
 physical position (bp) of each variant site, as returned by [vcf2GT()].}
 
 \item{window.size}{A single positive integer giving the size of each
-sliding window in base pairs.}
+sliding window in base pairs}
+
+\item{verbose}{Logical. If `TRUE` (default), print progress messages.}
 }
 \value{
 A [data.table::data.table] with one row per population-contig-window
@@ -42,28 +51,33 @@ A [data.table::data.table] with one row per population-contig-window
 \description{
 Iterates over each population defined in \code{pop.file}, splits the
 genotype data by contig, and slides a fixed-size window along each contig
-to compute Nei's H (expected heterozygosity under random mating) within
+to compute Nei's H (probability of sampling two different alleles) within
 that window. Nei's H is calculated as \code{2pq}, where \code{p} and
 \code{q} are the reference and alternative allele frequencies respectively.
 Both diploid genotypes (\code{"0/0"}, \code{"0/1"}, \code{"1/1"}) and
 haploid genotypes (\code{"0"}, \code{"1"}) are recognised when computing
-allele frequencies, making the calculation agnostic to ploidy.
+allele frequencies. Despite the different ploidies, allele frequencies
+should be the same between sexes, which means that Nei's H 
+is agnostic to ploidy.
 }
 \examples{
-# Assuming vcf2GT() has already been run:
-# result   <- vcf2GT("path/to/input.vcf")
-# gt       <- result$gt_matrix
-# contigs  <- result$contig_vector
-# pos      <- result$positions
-#
-# pop.file <- data.frame(ID  = colnames(gt),
-#                         Pop = c("PopA","PopA","PopB","PopB"))
-#
-# hs <- compute_Hs_W(geno.data   = gt,
-#                     pop.file    = pop.file,
-#                     contigs     = contigs,
-#                     positions   = pos,
-#                     window.size = 10000)
+vcf_path <- system.file("extdata",
+                        "example.vcf",
+                        package = "HaploDiploidEquilibrium")
+
+result <- vcf2GT(vcf_path)
+gt       <- result$gt_matrix
+contigs  <- result$contig_vector
+pos      <- result$positions
+
+pop.file <- data.frame(ID  = colnames(gt),
+                       Pop = c("PopA","PopA","PopB","PopB","PopB"))
+
+hs <- compute_Hs_W(geno.data   = gt,
+                   pop.file    = pop.file,
+                   contigs     = contigs,
+                   positions   = pos,
+                   window.size = 10000)
 
 }
 \seealso{
