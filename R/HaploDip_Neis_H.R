@@ -61,7 +61,7 @@
 #'   statistics from the output.
 #'
 #' @export
-compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
+compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size, verbose=TRUE) {
   
   all_results <- list()
   pops <- unique(pop.file$Pop)
@@ -69,7 +69,9 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
   # for each population
   for (pop in pops) {
     
-    cat("Processing population:", pop, "\n")
+    if(verbose){
+        cat("Processing population:", pop, "\n")
+    }
     
     # Get the sample names for the populations
     pops_samples <- pop.file$ID[pop.file$Pop == pop]
@@ -87,7 +89,9 @@ compute_Hs_W <- function(geno.data, pop.file, contigs, positions, window.size) {
     
     # for each contig do
     for(contig_name in unique(df$contig)) {
-      cat("  Contig:", contig_name, "\n")
+      if(verbose){
+          cat("  Contig:", contig_name, "\n")
+      }
       
       contig_data <- subset(df, contig == contig_name)
       

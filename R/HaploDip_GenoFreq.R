@@ -106,7 +106,7 @@
 #'   statistics from the output.
 #'
 #' @export
-compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, window.size, dip_freq) {
+compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, window.size, dip_freq, verbose=TRUE) {
   
   all_results <- list()
   pops <- unique(pop.file$Pop)
@@ -114,7 +114,9 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
   # for each population
   for (pop in pops) {
     
-    cat("Processing population:", pop, "\n")
+    if(verbose){
+        cat("Processing population:", pop, "\n")
+    }
     
     # Get the sample names for the populations
     pops_samples <- pop.file$ID[pop.file$Pop == pop]
@@ -132,7 +134,9 @@ compute_allele.freqs_W <- function(geno.data, pop.file, contigs, positions, wind
     
     # for each contig do
     for(contig_name in unique(df$contig)) {
-      cat("  Contig:", contig_name, "\n")
+      if(verbose){
+          cat("  Contig:", contig_name, "\n")
+      }
       
       contig_data <- subset(df, contig == contig_name)
       

@@ -57,7 +57,7 @@
 #'   function.
 #'
 #' @export
-allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size) {
+allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size, verbose = TRUE) {
   all_results <- list()
   
   # 1st section:  identified all possible population pairs
@@ -66,7 +66,9 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
   # for each population
   for (pop in pop.list) {
     
-    cat("Processing population:", pop, "\n")
+    if(verbose){
+        cat("Processing population:", pop, "\n")
+    }
     
     # Get the sample names for the populations
     pops_samples <- pop.file$ID[pop.file$Pop == pop]
@@ -84,7 +86,9 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
     
     # for each contig do
     for(contig_name in unique(df$contig)) {
-      cat("  Contig:", contig_name, "\n")
+      if(verbose){
+          cat("  Contig:", contig_name, "\n")
+      }
 
       contig_data <- subset(df, contig == contig_name)
       
@@ -226,7 +230,7 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size)
 #'   statistics from the output.
 #'
 #' @export
-pairwise.fst <- function(allele.freq.table) {
+pairwise.fst <- function(allele.freq.table, verbose=TRUE) {
   results <- list()
   
   # 1st section:  identified all possible population pairs
@@ -245,7 +249,9 @@ pairwise.fst <- function(allele.freq.table) {
   for (pair in 1:nrow(pop.pairs)) {
     # Get the population pair
     pops <- c(pop.pairs[pair, 1], pop.pairs[pair, 2])
-    cat("Processing population pair:", pops$Pop1, "-", pops$Pop2, "\n")
+    if(verbose){
+        cat("Processing population pair:", pops$Pop1, "-", pops$Pop2, "\n")
+    }
     
     # subset data for desired populations
     allele.freqs_pop <- allele.freq.table |> dplyr::filter(Pop %in% c(pops))
