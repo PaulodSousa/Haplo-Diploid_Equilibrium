@@ -252,7 +252,7 @@ pairwise.fst <- function(allele.freq.table, verbose=TRUE) {
     # Get the population pair
     pops <- c(pop.pairs[pair, 1], pop.pairs[pair, 2])
     if(verbose){
-        cat("Processing population pair:", pops$Pop1, "-", pops$Pop2, "\n")
+        cat("Processing population pair:", pops[1], "-", pops[2], "\n")
     }
     
     # subset data for desired populations
