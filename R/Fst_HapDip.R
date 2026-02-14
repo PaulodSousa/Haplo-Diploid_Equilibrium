@@ -108,7 +108,7 @@ allele.freq.WS <- function(geno.data, pop.file, contigs, positions, window.size,
       for (start_pos in window_starts) {
         end_pos <- start_pos + window.size - 1
         # Get rows in this window
-        window_rows <- contig_data[pos >= start_pos & pos <= end_pos]
+        window_rows <- subset(contig_data, pos >= start_pos & pos <= end_pos)
         
         if (nrow(window_rows) == 0) next  # Skip empty windows
         
