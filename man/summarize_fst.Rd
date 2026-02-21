@@ -27,9 +27,24 @@ produced by [pairwise.fst()]. Weighting by \code{Sum.Sites} ensures that
 windows with more called genotypes contribute more to the estimate.
 }
 \examples{
-# Assuming pairwise.fst() has already been run:
-# fst     <- pairwise.fst(af)
-# summary <- summarize_fst(fst)
+vcf_path <- system.file("extdata",
+                        "example.vcf",
+                        package = "HaploDiploidEquilibrium")
+result   <- vcf2GT(vcf_path)
+gt       <- result$gt_matrix
+contigs  <- result$contig_vector
+pos      <- result$positions
+
+pop.file <- data.frame(ID  = colnames(gt),
+                       Pop = c("PopA","PopA","PopB","PopB","PopB"))
+
+af <- allele.freq.WS(geno.data  = gt,
+                     pop.file   = pop.file,
+                     contigs    = contigs,
+                     positions  = pos,
+                     window.size = 10000)
+fst <- pairwise.fst(af)
+summary <- summarize_fst(fst)
 
 }
 \seealso{
